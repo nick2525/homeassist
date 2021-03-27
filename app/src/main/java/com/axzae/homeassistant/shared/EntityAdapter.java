@@ -27,7 +27,6 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.crashlytics.android.Crashlytics;
 
 import java.util.ArrayList;
 
@@ -261,7 +260,6 @@ public class EntityAdapter extends RecyclerView.Adapter<EntityAdapter.EntityTile
         public void setData(final Cursor cursor) {
             final Entity entity = Entity.getInstance(cursor);
             if (entity == null) {
-                Crashlytics.logException(new RuntimeException("Entity is Null!"));
             } else {
                 setData(entity);
             }

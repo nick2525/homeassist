@@ -10,7 +10,6 @@ import com.axzae.homeassistant.AppController;
 import com.axzae.homeassistant.MainActivity;
 import com.axzae.homeassistant.model.HomeAssistantServer;
 import com.axzae.homeassistant.model.rest.CallServiceRequest;
-import com.crashlytics.android.Crashlytics;
 
 public class BaseFragment extends Fragment {
 
@@ -48,7 +47,6 @@ public class BaseFragment extends Fragment {
         }
 
         if (app == null) {
-            Crashlytics.logException(new RuntimeException("Null Activity"));
         }
         return false;
         //throw new RuntimeException("Unsupported Activity");

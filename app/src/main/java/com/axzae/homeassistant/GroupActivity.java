@@ -47,7 +47,6 @@ import com.axzae.homeassistant.model.MDIFont;
 import com.axzae.homeassistant.provider.DatabaseManager;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.FaultUtil;
-import com.crashlytics.android.Crashlytics;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
@@ -84,7 +83,6 @@ public class GroupActivity extends BaseActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            Crashlytics.log("group: " + bundle.getString("group", "empty"));
             mGroup = CommonUtil.inflate(bundle.getString("group"), Group.class);
         } else {
             finish();

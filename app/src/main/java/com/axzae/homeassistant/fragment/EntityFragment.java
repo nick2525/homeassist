@@ -37,8 +37,6 @@ import com.axzae.homeassistant.shared.interfaces.EntityAsyncCallback;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.EntityHandlerHelper;
 import com.axzae.homeassistant.view.RecyclerViewEmptySupport;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 
 import java.util.ArrayList;
 

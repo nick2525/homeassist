@@ -13,7 +13,6 @@ import android.text.style.RelativeSizeSpan;
 
 import com.axzae.homeassistant.ConnectActivity;
 import com.axzae.homeassistant.R;
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
@@ -102,7 +101,6 @@ public class HomeAssistantServer {
 
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
         }
         return server;
     }

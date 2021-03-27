@@ -3,7 +3,6 @@ package com.axzae.homeassistant.model;
 import android.database.Cursor;
 
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.annotations.SerializedName;
 
 public class Group extends Entity {
@@ -41,7 +40,6 @@ public class Group extends Entity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
         }
         return entity;
     }

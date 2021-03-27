@@ -26,7 +26,6 @@ import com.axzae.homeassistant.provider.HomeAssitantWebSocket;
 import com.axzae.homeassistant.provider.ServiceProvider;
 import com.axzae.homeassistant.shared.DataSyncInterface;
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.Crashlytics;
 
 import org.json.JSONObject;
 
@@ -173,7 +172,6 @@ public class DataSyncService extends Service {
 
         public void onOpen(WebSocket webSocket, Response response) {
             showNotification();
-            Crashlytics.log("websocket open");
         }
 
         @Override
@@ -191,14 +189,12 @@ public class DataSyncService extends Service {
         public void onClosing(WebSocket webSocket, int code, String reason) {
             webSocket.close(NORMAL_CLOSURE_STATUS, null);
             output("Closing : " + code + " / " + reason);
-            Crashlytics.log("websocket onClosing");
             stopWebSocket();
         }
 
         @Override
         public void onFailure(WebSocket webSocket, Throwable t, Response response) {
             output("Error : " + t.getMessage());
-            Crashlytics.log("websocket failure");
             stopWebSocket();
         }
     }
@@ -239,7 +235,6 @@ public class DataSyncService extends Service {
                     .toString();
             sendCommand(command);
         } catch (Exception e) {
-            Crashlytics.logException(e);
             e.printStackTrace();
         }
     }

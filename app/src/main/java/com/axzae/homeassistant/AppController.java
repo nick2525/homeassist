@@ -9,13 +9,10 @@ import android.support.annotation.NonNull;
 import android.support.multidex.MultiDex;
 import android.util.Log;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings;
-
-import io.fabric.sdk.android.Fabric;
 
 public class AppController extends Application {
     private static AppController mInstance;
@@ -31,7 +28,6 @@ public class AppController extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        Fabric.with(this, new Crashlytics());
         mInstance = this;
 
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();

@@ -3,7 +3,6 @@ package com.axzae.homeassistant.model;
 import android.net.Uri;
 
 import com.axzae.homeassistant.helper.AlwaysListTypeAdapterFactory;
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 
@@ -203,7 +202,6 @@ public class Attribute {
     }
 
     public BigDecimal getTemperature() {
-        Crashlytics.log("temperature: " + temperature);
         if (temperature == null) {
             return null;
         }

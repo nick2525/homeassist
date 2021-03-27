@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.util.Log;
 
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.annotations.SerializedName;
 
@@ -51,7 +50,6 @@ public class Entity {
         } catch (Exception e) {
             Log.d("YouQi", "Cursor: " + cursor.getString(cursor.getColumnIndex("RAW_JSON")));
             e.printStackTrace();
-            Crashlytics.logException(e);
         }
         return entity;
     }

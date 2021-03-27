@@ -43,7 +43,6 @@ import com.axzae.homeassistant.provider.DatabaseManager;
 import com.axzae.homeassistant.provider.EntityWidgetProvider;
 import com.axzae.homeassistant.provider.ServiceProvider;
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.Crashlytics;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.reflect.TypeToken;
 
@@ -310,7 +309,6 @@ public class ConnectActivity extends BaseActivity {
             } catch (Exception e) {
                 Log.d("YouQi", "ERROR!");
                 e.printStackTrace();
-                Crashlytics.logException(e);
                 return new ErrorMessage(e.getMessage(), e.toString());
             }
 

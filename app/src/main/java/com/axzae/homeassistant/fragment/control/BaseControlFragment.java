@@ -14,7 +14,6 @@ import com.axzae.homeassistant.model.rest.RxPayload;
 import com.axzae.homeassistant.shared.EntityProcessInterface;
 import com.axzae.homeassistant.shared.EventEmitterInterface;
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.Crashlytics;
 
 import fr.tvbarthel.lib.blurdialogfragment.BlurDialogEngine;
 import io.reactivex.Observer;
@@ -61,7 +60,6 @@ public class BaseControlFragment extends DialogFragment implements Observer<RxPa
         super.onCreate(savedInstanceState);
         Bundle args = getArguments();
         mEntity = CommonUtil.inflate(args.getString("entity"), Entity.class);
-        Crashlytics.log("BCF onCreate Entity: " + args.getString("entity"));
     }
 
     @Override

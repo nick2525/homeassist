@@ -58,7 +58,6 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.crashlytics.android.Crashlytics;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
@@ -95,7 +94,6 @@ public class EditActivity extends BaseActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            Crashlytics.log("group: " + bundle.getString("group", "empty"));
             mGroup = CommonUtil.inflate(bundle.getString("group"), Group.class);
             if (mGroup == null) {
                 discardAndFinish();

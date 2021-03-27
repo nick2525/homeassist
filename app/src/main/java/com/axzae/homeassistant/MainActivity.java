@@ -78,7 +78,6 @@ import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.FaultUtil;
 import com.axzae.homeassistant.view.ChangelogView;
 import com.axzae.homeassistant.view.MultiSwipeRefreshLayout;
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.ads.MobileAds;
@@ -239,7 +238,6 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
         mCurrentServer = mServers.get(mSharedPref.getInt("connectionIndex", 0));
         mProgressBar = findViewById(R.id.progressBar);
 
-        Crashlytics.log(Log.DEBUG, "YouQi", mCurrentServer.getBaseUrl());
         Log.d("YouQi", "onCreate");
 
         setupToolbar();
@@ -873,7 +871,6 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
         } else if (mCall == null) {
             Log.d("YouQi", "Using HTTP");
             showNetworkBusy();
-            Crashlytics.log("baseUrl: " + mCurrentServer.getBaseUrl());
             mCall = ServiceProvider.getApiService(mCurrentServer.getBaseUrl()).callService(mCurrentServer.getPassword(), domain, service, serviceRequest);
             mCall.enqueue(new Callback<ArrayList<Entity>>() {
                 @Override

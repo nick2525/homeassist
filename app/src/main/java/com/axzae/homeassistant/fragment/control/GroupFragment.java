@@ -26,8 +26,6 @@ import com.axzae.homeassistant.provider.DatabaseManager;
 import com.axzae.homeassistant.shared.EntityProcessInterface;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.EntityHandlerHelper;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 
 import java.util.ArrayList;
 import java.util.List;

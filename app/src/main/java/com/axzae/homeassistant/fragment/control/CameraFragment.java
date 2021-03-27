@@ -26,7 +26,6 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.crashlytics.android.Crashlytics;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -105,7 +104,6 @@ public class CameraFragment extends BaseControlFragment implements View.OnClickL
         //mImageView.setVisibility(View.INVISIBLE);
 
         mImageView.setImageResource(android.R.color.transparent);
-        Crashlytics.log("camera url: " + mServer.getBaseUrl() + mEntity.attributes.entityPicture);
 
         GlideApp.with(getActivity())
                 .load(mServer.getBaseUrl() + mEntity.attributes.entityPicture)
@@ -116,7 +114,6 @@ public class CameraFragment extends BaseControlFragment implements View.OnClickL
                     public boolean onLoadFailed(@Nullable GlideException e, Object model, Target<Drawable> target, boolean isFirstResource) {
                         mConnErrorView.setVisibility(View.VISIBLE);
                         mProgressBar.setVisibility(View.GONE);
-                        Crashlytics.logException(e);
                         e.printStackTrace();
 
                         StringWriter sw = new StringWriter();

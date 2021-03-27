@@ -15,8 +15,6 @@ import com.axzae.homeassistant.R;
 import com.axzae.homeassistant.model.Entity;
 import com.axzae.homeassistant.model.rest.CallServiceRequest;
 import com.axzae.homeassistant.util.CommonUtil;
-import com.crashlytics.android.answers.Answers;
-import com.crashlytics.android.answers.CustomEvent;
 
 import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 
