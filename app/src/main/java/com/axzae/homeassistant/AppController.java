@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.multidex.MultiDex;
+import androidx.annotation.NonNull;
+import androidx.multidex.MultiDex;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -33,11 +33,10 @@ public class AppController extends Application {
         mFirebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
         if (BuildConfig.DEBUG) {
             FirebaseRemoteConfigSettings configSettings = new FirebaseRemoteConfigSettings.Builder()
-                    .setDeveloperModeEnabled(BuildConfig.DEBUG)
+                    .setMinimumFetchIntervalInSeconds(BuildConfig.DEBUG ? 0 : 300)
                     .build();
-            mFirebaseRemoteConfig.setConfigSettings(configSettings);
+            mFirebaseRemoteConfig.setConfigSettingsAsync(configSettings);
         }
-        mFirebaseRemoteConfig.setDefaults(R.xml.remote_config_defaults);
         fetchFirebaseConfig();
 
         //String android_id = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -59,22 +58,6 @@ public class AppController extends Application {
     private void fetchFirebaseConfig() {
         long cacheExpiration = 3600; // 1 hour in seconds.
         // If in developer mode cacheExpiration is set to 0 so each fetch will retrieve values from the server.
-        if (mFirebaseRemoteConfig.getInfo().getConfigSettings().isDeveloperModeEnabled()) {
-            cacheExpiration = 0;
-        }
-
-        Log.d("YouQi", "cacheExpiration: " + cacheExpiration);
-        mFirebaseRemoteConfig.fetch(cacheExpiration)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            mFirebaseRemoteConfig.activateFetched();
-                        } else {
-                            Log.d("YouQi", "Fetch Failed");
-                        }
-                    }
-                });
     }
 
     public static synchronized AppController getInstance() {

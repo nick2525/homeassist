@@ -170,7 +170,6 @@
 
     <string name="navigation_drawer_open">Open Drawer</string>
     <string name="navigation_drawer_close">Close Drawer</string>
-    <string name="menu_ads" translatable="false">Watch Ads</string>
     <string name="label_current_temperature">Current Temperature: </string>
     <string name="label_target_temperature">Target Temperature</string>
     <string name="title_add_connection">Add Connection</string>

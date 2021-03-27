@@ -1,14 +1,14 @@
 package com.axzae.homeassistant;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.util.DiffUtil;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DiffUtil;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -34,8 +34,6 @@ import com.axzae.homeassistant.provider.ServiceProvider;
 import com.axzae.homeassistant.shared.LogSheetDiffUtilCallback;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.FaultUtil;
-import com.google.firebase.analytics.FirebaseAnalytics;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -74,8 +72,6 @@ public class LogbookActivity extends AppCompatActivity {
 
         Bundle params = new Bundle();
         params.putString("name", this.getClass().getName());
-        FirebaseAnalytics.getInstance(this).logEvent("open_activity", params);
-
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mCurrentServer = CommonUtil.inflate(bundle.getString("server", ""), HomeAssistantServer.class);

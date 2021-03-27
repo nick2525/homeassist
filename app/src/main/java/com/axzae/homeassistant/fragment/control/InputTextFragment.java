@@ -4,8 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Dialog;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
+
 import android.view.View;
 import android.widget.EditText;
 
@@ -15,8 +15,6 @@ import com.axzae.homeassistant.R;
 import com.axzae.homeassistant.model.Entity;
 import com.axzae.homeassistant.model.rest.CallServiceRequest;
 import com.axzae.homeassistant.util.CommonUtil;
-
-import java.util.Locale;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class InputTextFragment extends BaseControlFragment implements View.OnClickListener {

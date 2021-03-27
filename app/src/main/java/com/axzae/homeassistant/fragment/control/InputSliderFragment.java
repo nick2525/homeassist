@@ -1,13 +1,12 @@
 package com.axzae.homeassistant.fragment.control;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
+
 import android.view.View;
 import android.widget.TextView;
 
@@ -21,8 +20,6 @@ import org.adw.library.widgets.discreteseekbar.DiscreteSeekBar;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Locale;
-
-import fr.tvbarthel.lib.blurdialogfragment.BlurDialogFragment;
 
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class InputSliderFragment extends BaseControlFragment implements View.OnClickListener {

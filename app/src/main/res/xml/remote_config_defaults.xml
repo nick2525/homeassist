@@ -6,18 +6,6 @@
         <value>Fetching config…</value>
     </entry>
     <entry>
-        <key>adsense</key>
-        <value>false</value>
-    </entry>
-    <entry>
-        <key>adsense_map</key>
-        <value>false</value>
-    </entry>
-    <entry>
-        <key>adsense_widget</key>
-        <value>false</value>
-    </entry>
-    <entry>
         <key>interstitial</key>
         <value>false</value>
     </entry>

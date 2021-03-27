@@ -1,15 +1,5 @@
 package com.axzae.homeassistant.shared;
 
-import android.content.Context;
-import android.database.Cursor;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.axzae.homeassistant.R;
-
 //https://stackoverflow.com/questions/39825125/android-recyclerview-cursorloader-contentprovider-load-more
 public class EntityCursorAdapter { //extends CursorRecyclerViewAdapter {
 

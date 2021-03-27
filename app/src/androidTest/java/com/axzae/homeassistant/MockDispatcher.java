@@ -1,6 +1,6 @@
 package com.axzae.homeassistant;
 
-import android.support.test.InstrumentationRegistry;
+import androidx.test.platform.app.InstrumentationRegistry;
 import android.util.Log;
 
 import com.axzae.homeassistant.util.CommonUtil;

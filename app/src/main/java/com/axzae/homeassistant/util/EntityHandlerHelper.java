@@ -1,7 +1,7 @@
 package com.axzae.homeassistant.util;
 
-import android.app.FragmentManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -32,7 +32,7 @@ public class EntityHandlerHelper {
 
     public static boolean onEntityClick(final EntityProcessInterface epi, final Entity entity) {
         boolean isConsumed = true;
-        FragmentManager fragmentManager = epi.getFragmentManager();
+        FragmentManager fragmentManager = epi.getSupportFragmentManager();
         HomeAssistantServer server = epi.getServer();
 
         if (entity.isGroup()) {
@@ -107,7 +107,7 @@ public class EntityHandlerHelper {
 
     public static boolean onEntityLongClick(final EntityProcessInterface epi, final Entity entity) {
         boolean isConsumed = true;
-        FragmentManager fragmentManager = epi.getFragmentManager();
+        FragmentManager fragmentManager = epi.getSupportFragmentManager();
         HomeAssistantServer server = epi.getServer();
 
         if (entity.isGroup()) {

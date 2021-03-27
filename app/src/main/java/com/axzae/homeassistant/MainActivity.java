@@ -18,23 +18,23 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.browser.customtabs.CustomTabsIntent;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.viewpager.widget.ViewPager;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -78,9 +78,6 @@ import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.FaultUtil;
 import com.axzae.homeassistant.view.ChangelogView;
 import com.axzae.homeassistant.view.MultiSwipeRefreshLayout;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
-import com.google.android.gms.ads.MobileAds;
 import com.jaeger.library.StatusBarUtil;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
@@ -403,9 +400,6 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
                     case R.id.nav_webui:
                         showWebUI();
                         break;
-                    case R.id.nav_ads:
-                        watchAds();
-                        break;
                     case R.id.nav_logbook:
                         showLogbook();
                         break;
@@ -473,12 +467,6 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
         sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.message_recommendation, "https://goo.gl/5rkPnP  #homeassistant #android"));
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
-    }
-
-    private void watchAds() {
-        MobileAds.initialize(getApplicationContext(), getString(R.string.banner_ad_app_id));
-        AdView mAdView = findViewById(R.id.adView);
-        mAdView.loadAd(CommonUtil.getAdRequest());
     }
 
     private void setupViewPager() {
@@ -964,6 +952,11 @@ public class MainActivity extends BaseActivity implements BottomNavigationView.O
     @Override
     public Context getActivityContext() {
         return this;
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
     }
 
     private class RefreshTask extends AsyncTask<Void, String, ErrorMessage> {

@@ -40,7 +40,7 @@
                     app:layout_anchor="@id/appbar"
                     app:layout_anchorGravity="bottom|center"/>
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_websocket"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -61,7 +61,7 @@
             </FrameLayout>
 
 
-            <android.support.v7.widget.AppCompatSpinner
+            <androidx.appcompat.widget.AppCompatSpinner
                 android:id="@+id/spinner_server"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

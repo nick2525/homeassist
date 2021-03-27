@@ -4,11 +4,11 @@ import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.customtabs.CustomTabsIntent;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.browser.customtabs.CustomTabsIntent;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,7 +16,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.axzae.homeassistant.R;
-import com.axzae.homeassistant.model.Entity;
 import com.axzae.homeassistant.model.Library;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 

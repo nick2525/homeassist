@@ -2,7 +2,7 @@ package com.axzae.homeassistant.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.AttributeSet;
 
 public class MaterialEditText extends com.rengwuxian.materialedittext.MaterialEditText {

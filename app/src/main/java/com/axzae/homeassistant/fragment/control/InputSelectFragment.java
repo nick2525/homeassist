@@ -1,22 +1,19 @@
 package com.axzae.homeassistant.fragment.control;
 
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import androidx.annotation.NonNull;
+
 import android.widget.ArrayAdapter;
 
 import com.axzae.homeassistant.R;
 import com.axzae.homeassistant.model.Entity;
 import com.axzae.homeassistant.model.rest.CallServiceRequest;
 import com.axzae.homeassistant.util.CommonUtil;
-
-import fr.tvbarthel.lib.blurdialogfragment.BlurDialogFragment;
 
 /**
  * Simple fragment with blur effect behind.

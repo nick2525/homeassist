@@ -7,8 +7,8 @@ import android.content.pm.PackageInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v7.preference.Preference;
-import android.support.v7.preference.PreferenceFragmentCompat;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
 import android.util.Log;
 
 import com.axzae.homeassistant.AboutActivity;
@@ -48,9 +48,9 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
         try {
             buildPref.setSummary(BuildConfig.BUILD_TYPE + " \u2022 " + BuildConfig.buildTime);
 
-            buildPref.setOnPreferenceClickListener(new android.support.v7.preference.Preference.OnPreferenceClickListener() {
+            buildPref.setOnPreferenceClickListener(new androidx.preference.Preference.OnPreferenceClickListener() {
                 @Override
-                public boolean onPreferenceClick(android.support.v7.preference.Preference preference) {
+                public boolean onPreferenceClick(androidx.preference.Preference preference) {
                     if (--countDown <= 0) {
                         preference.setSummary(BuildConfig.FLAVOR + " \u2022 " + BuildConfig.BUILD_TYPE + " \u2022 " + BuildConfig.buildTime);
                     }

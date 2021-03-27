@@ -10,30 +10,24 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.axzae.homeassistant.AppController;
-import com.axzae.homeassistant.EditActivity;
 import com.axzae.homeassistant.R;
 import com.axzae.homeassistant.TransparentActivity;
 import com.axzae.homeassistant.model.Entity;
 import com.axzae.homeassistant.model.HomeAssistantServer;
-import com.axzae.homeassistant.model.MDIFont;
 import com.axzae.homeassistant.model.Widget;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.FaultUtil;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 import retrofit2.Call;

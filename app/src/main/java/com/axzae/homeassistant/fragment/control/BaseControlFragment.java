@@ -2,7 +2,6 @@ package com.axzae.homeassistant.fragment.control;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import com.axzae.homeassistant.shared.EntityProcessInterface;
 import com.axzae.homeassistant.shared.EventEmitterInterface;
 import com.axzae.homeassistant.util.CommonUtil;
 
+import androidx.fragment.app.DialogFragment;
 import fr.tvbarthel.lib.blurdialogfragment.BlurDialogEngine;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;

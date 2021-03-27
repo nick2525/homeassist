@@ -29,7 +29,7 @@
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_rising_label"
                     android:layout_width="0dp"
                     android:layout_weight="1"
@@ -44,7 +44,7 @@
                     tools:ignore="HardcodedText,MissingPrefix,SpUsage"
                     tools:text="Rising in 4 hours"/>
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_rising"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_noon_label"
                     android:layout_width="0dp"
                     android:layout_weight="1"
@@ -82,7 +82,7 @@
                     tools:ignore="HardcodedText,MissingPrefix,SpUsage"
                     tools:text="Rising in 4 hours"/>
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_noon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                 android:layout_gravity="center"
                 android:orientation="horizontal">
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_setting_label"
                     android:layout_width="0dp"
                     android:layout_weight="1"
@@ -120,7 +120,7 @@
                     tools:ignore="HardcodedText,MissingPrefix,SpUsage"
                     tools:text="Setting in 4 hours"/>
 
-                <android.support.v7.widget.AppCompatTextView
+                <androidx.appcompat.widget.AppCompatTextView
                     android:id="@+id/text_setting"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

@@ -10,9 +10,9 @@ import android.content.pm.Signature;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Looper;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v4.graphics.drawable.DrawableCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -30,7 +30,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.axzae.homeassistant.R;
-import com.google.android.gms.ads.AdRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -47,12 +46,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class CommonUtil {
     public static float dpFromPx(final Context context, final float px) {
@@ -240,12 +235,6 @@ public class CommonUtil {
                 }
             });
         }
-    }
-
-    public static AdRequest getAdRequest() {
-        return new AdRequest.Builder()
-                .addTestDevice("CE1828AEF0F43C2D5DF5834F3F309B02")
-                .build();
     }
 
     public static void setMenuDrawableColor(Context context, MenuItem menuItem, int resColor) {

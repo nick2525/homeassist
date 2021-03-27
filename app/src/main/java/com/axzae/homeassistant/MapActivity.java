@@ -9,11 +9,11 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.res.ResourcesCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.res.ResourcesCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -28,9 +28,6 @@ import com.axzae.homeassistant.provider.DatabaseManager;
 import com.axzae.homeassistant.service.DataSyncService;
 import com.axzae.homeassistant.util.CommonUtil;
 import com.axzae.homeassistant.util.IconGenerator;
-import com.google.android.gms.ads.AdListener;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
@@ -59,7 +56,6 @@ import io.reactivex.observers.SafeObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener, Observer<RxPayload> {
-    private InterstitialAd mInterstitialAd;
     private Toast mToast;
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -153,20 +149,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    private void setupAdSense() {
-        Log.d("YouQi", "Map Adsense: " + ((FirebaseRemoteConfig.getInstance().getBoolean("adsense_map")) ? "Yes" : "No"));
-        if (FirebaseRemoteConfig.getInstance().getBoolean("adsense_map")) {
-            mInterstitialAd = new InterstitialAd(this);
-            mInterstitialAd.setAdUnitId(getString(R.string.banner_ad_unit_id_interstitial));
-            mInterstitialAd.loadAd(CommonUtil.getAdRequest());
-            mInterstitialAd.setAdListener(new AdListener() {
-                public void onAdLoaded() {
-                    mInterstitialAd.show();
-                }
-            });
-        }
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -180,7 +162,6 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         }
 
         setupIconGenerator();
-        setupAdSense();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);

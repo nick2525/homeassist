@@ -1,12 +1,13 @@
 package com.axzae.homeassistant.util;
 
-import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.content.res.ResourcesCompat;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import androidx.core.content.res.ResourcesCompat;
 import android.util.Log;
 
 import com.axzae.homeassistant.R;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
 
 import java.lang.reflect.Field;
 
@@ -21,7 +22,7 @@ public class BottomNavigationViewHelper {
             for (int i = 0; i < menuView.getChildCount(); i++) {
                 BottomNavigationItemView item = (BottomNavigationItemView) menuView.getChildAt(i);
                 //noinspection RestrictedApi
-                item.setShiftingMode(false);
+                item.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
                 item.setChecked(false);
 
                 item.setTextColor(ResourcesCompat.getColorStateList(item.getContext().getResources(), R.color.color_bottom_navigation, null));

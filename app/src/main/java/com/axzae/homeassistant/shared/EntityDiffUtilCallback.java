@@ -1,10 +1,9 @@
 package com.axzae.homeassistant.shared;
 
-import android.support.annotation.Nullable;
-import android.support.v7.util.DiffUtil;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.axzae.homeassistant.model.Entity;
-import com.axzae.homeassistant.util.CommonUtil;
 
 import java.util.List;
 

@@ -1,9 +1,6 @@
 package com.axzae.homeassistant.shared;
 
-import android.support.v4.app.FragmentActivity;
-
 import com.axzae.homeassistant.model.Entity;
-import com.axzae.homeassistant.model.rest.CallServiceRequest;
 
 public interface EntityInterface {
     /**

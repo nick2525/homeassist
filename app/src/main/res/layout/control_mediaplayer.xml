@@ -68,7 +68,7 @@
             android:visibility="gone"
             tools:ignore="UseCompoundDrawables">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_mdi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -99,7 +99,7 @@
             android:layout_gravity="bottom|center"
             android:orientation="horizontal">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_prev"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
                 app:fontFamily="@font/mdi"
                 tools:ignore="HardcodedText,MissingPrefix,SpUsage"/>
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_pause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -133,7 +133,7 @@
                 app:fontFamily="@font/mdi"
                 tools:ignore="HardcodedText,MissingPrefix,SpUsage"/>
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_play"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -150,7 +150,7 @@
                 app:fontFamily="@font/mdi"
                 tools:ignore="HardcodedText,MissingPrefix,SpUsage"/>
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_next"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -181,7 +181,7 @@
         android:paddingRight="16dp"
         android:paddingTop="8dp">
 
-        <android.support.v7.widget.AppCompatTextView
+        <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/text_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -225,7 +225,7 @@
             android:orientation="horizontal"
             android:paddingLeft="12dp">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_power"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -242,7 +242,7 @@
                 app:fontFamily="@font/mdi"
                 tools:ignore="HardcodedText,MissingPrefix,SpUsage"/>
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_speech"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

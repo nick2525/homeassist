@@ -28,7 +28,7 @@
             android:layout_marginLeft="4dp"
             android:layout_marginRight="20dp">
 
-            <android.support.v7.widget.AppCompatTextView
+            <androidx.appcompat.widget.AppCompatTextView
                 android:id="@+id/text_mdi"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

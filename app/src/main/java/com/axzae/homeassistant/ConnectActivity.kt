@@ -12,8 +12,8 @@ import android.os.Bundle
 import android.os.StrictMode
 import android.os.StrictMode.VmPolicy
 import android.preference.PreferenceManager
-import android.support.design.widget.Snackbar
-import android.support.v4.content.res.ResourcesCompat
+import com.google.android.material.snackbar.Snackbar
+import androidx.core.content.res.ResourcesCompat
 import android.text.SpannableStringBuilder
 import android.text.TextUtils
 import android.util.Log
@@ -182,7 +182,7 @@ class ConnectActivity : BaseActivity() {
             focusView!!.requestFocus()
         } else {
             showProgress(true, getString(R.string.progress_connecting))
-            val host = Uri.parse(baseURL).host
+            val host = Uri.parse(baseURL).host.orEmpty()
             Log.d("YouQi", "baseURL: $baseURL")
             Log.d("YouQi", "host: $host")
             if (mAuthTask == null) {
@@ -295,9 +295,6 @@ class ConnectActivity : BaseActivity() {
         builder.append(message)
         mSnackbar = Snackbar.make(findViewById(android.R.id.content), builder, Snackbar.LENGTH_LONG)
             .setAction(getString(R.string.action_retry)) { attemptLogin() }
-        val textView = mSnackbar!!.view.findViewById<TextView>(android.support.design.R.id.snackbar_text)
-        textView.setCompoundDrawablesWithIntrinsicBounds(warningIcon, null, null, null)
-        textView.compoundDrawablePadding = resources.getDimensionPixelOffset(R.dimen.icon_8dp)
         mSnackbar!!.view.setBackgroundColor(ResourcesCompat.getColor(resources, R.color.md_red_A200, null))
         mSnackbar!!.show()
     }
