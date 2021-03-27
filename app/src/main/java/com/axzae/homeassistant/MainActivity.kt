@@ -37,6 +37,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -83,14 +84,22 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.ArrayList
 import java.util.Locale
+import kotlin.coroutines.CoroutineContext
 
 class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener, EntityProcessInterface,
-    EventEmitterInterface {
+    EventEmitterInterface, CoroutineScope {
     private val mEventEmitter: Subject<RxPayload> = PublishSubject.create()
     private var mCall2: Call<String?>? = null
     private var mServerSpinner: Spinner? = null
@@ -107,7 +116,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private var mSharedPref: SharedPreferences? = null
     private var mCurrentServer: HomeAssistantServer? = null
     private var mProgressBar: ProgressBar? = null
-    private var mRefreshTask: RefreshTask? = null
     private var mCall: Call<ArrayList<Entity?>?>? = null
     private var doubleBackToExitPressedOnce = false
     private var mSwipeRefresh: MultiSwipeRefreshLayout? = null
@@ -155,6 +163,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             mBound = false
         }
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + SupervisorJob()
 
     private fun showNetworkBusy() {
         mProgressBar!!.visibility = View.VISIBLE
@@ -502,6 +513,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     override fun onDestroy() {
         super.onDestroy()
+        coroutineContext[Job]!!.cancel()
         Log.d("YouQi", "Destroying MainActivity")
         if (mBound) {
             applicationContext.unbindService(mConnection)
@@ -723,10 +735,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     fun refreshApi() {
-        if (mRefreshTask == null) {
-            mRefreshTask = RefreshTask()
-            mRefreshTask!!.execute(null as Void?)
-        }
+        makeRefreshWork()
     }
 
     override fun onPause() {
@@ -802,9 +811,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         when (item.itemId) {
             R.id.action_search -> showSearch()
             R.id.action_refresh -> {
-                if (mRefreshTask == null) {
-                    mSwipeRefresh!!.isRefreshing = true
-                }
                 refreshApi()
             }
             R.id.action_edit -> showEdit(null)
@@ -828,55 +834,39 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     override fun onPointerCaptureChanged(hasCapture: Boolean) {}
 
-    private inner class RefreshTask : AsyncTask<Void?, String?, ErrorMessage?>() {
-        override fun doInBackground(vararg params: Void?): ErrorMessage? {
-            try {
-                publishProgress("Connecting")
-                val response = ServiceProvider.getApiService(
-                    mCurrentServer!!.baseUrl
-                ).getStates(mCurrentServer!!.getPassword())?.execute()
-                if (response?.code() != 200) {
-                    return ErrorMessage("Error", response?.message())
-                }
-                val statesResponse = response.body() ?: throw RuntimeException("No Data")
-                Log.d("YouQi", "bootstrapResponse: $statesResponse")
-                publishProgress("Refreshing")
-                val values = ArrayList<ContentValues>()
-                for (entity: Entity? in statesResponse) {
-                    values.add(entity!!.contentValues)
-                }
-                contentResolver.bulkInsert(EntityContentProvider.getUrl(), values.toTypedArray())
-                publishProgress(null as String?)
-                //Crashlytics.setUserIdentifier(settings.bootstrapResponse.profile.loginId);
-            } catch (e: Exception) {
-                e.printStackTrace()
-                return ErrorMessage("System Exception", FaultUtil.getPrintableMessage(this@MainActivity, e))
-            }
-            return null
-        }
-
-        override fun onProgressUpdate(vararg values: String?) {
-            super.onProgressUpdate(*values)
-        }
-
-        override fun onPostExecute(errorMessage: ErrorMessage?) {
+    private fun makeRefreshWork() {
+        this.launch {
+            showNetworkBusy()
+            mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = false
+            val errorMessage = refreshWork()
             showNetworkIdle()
-            mRefreshTask = null
             mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = true
             mSwipeRefresh!!.isRefreshing = false
             if (errorMessage != null) {
                 showError(errorMessage.message)
             }
         }
+    }
 
-        override fun onCancelled() {
-            showNetworkIdle()
+    suspend fun refreshWork(): ErrorMessage? {
+        try {
+            val response = ServiceProvider.getApiService(
+                mCurrentServer!!.baseUrl
+            ).getStates(mCurrentServer!!.getPassword())?.execute()
+            if (response?.code() != 200) {
+                return ErrorMessage("Error", response?.message())
+            }
+            val statesResponse = response.body() ?: throw RuntimeException("No Data")
+            val values = ArrayList<ContentValues>()
+            for (entity: Entity? in statesResponse) {
+                values.add(entity!!.contentValues)
+            }
+            contentResolver.bulkInsert(EntityContentProvider.getUrl(), values.toTypedArray())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return ErrorMessage("System Exception", FaultUtil.getPrintableMessage(this@MainActivity, e))
         }
-
-        init {
-            showNetworkBusy()
-            mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = false
-        }
+        return null
     }
 
     fun showSortOptions() {
@@ -961,8 +951,8 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 })
             } else {
                 mainText.text = items.get(position).getName()
-                subText.visibility = View.VISIBLE
-                subText.text = items.get(position).baseUrl
+                subText.isVisible = true
+                subText.text = items[position].baseUrl
                 convertView.findViewById<View>(R.id.parent).isClickable = false
             }
             return convertView
@@ -1038,4 +1028,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
         }
     }
+
+
 }
