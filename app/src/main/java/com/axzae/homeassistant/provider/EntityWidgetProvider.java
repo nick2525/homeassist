@@ -103,7 +103,7 @@ public class EntityWidgetProvider extends AppWidgetProvider {
     public void onUpdate(final Context context, final AppWidgetManager appWidgetManager, final int[] appWidgetIds) {
         //final int count = appWidgetIds.length;
         Log.d("YouQi", "Widget onUpdate");
-        final DatabaseManager databaseManager = DatabaseManager.getInstance(context);
+        final DatabaseManager databaseManager = DatabaseManager.Companion.getInstance(context);
         final SharedPreferences mSharedPref = ((AppController) context.getApplicationContext()).getSharedPref();
         final ArrayList<HomeAssistantServer> mServers = databaseManager.getConnections();
         final HomeAssistantServer mCurrentServer = mServers.get(mSharedPref.getInt("connectionIndex", 0));
@@ -166,7 +166,7 @@ public class EntityWidgetProvider extends AppWidgetProvider {
         if (rawWidget == null) return;
         Log.d("YouQi", "Widget after rawWidget");
         final Widget widget = CommonUtil.inflate(rawWidget, Widget.class);
-        final DatabaseManager databaseManager = DatabaseManager.getInstance(context);
+        final DatabaseManager databaseManager = DatabaseManager.Companion.getInstance(context);
         //final SharedPreferences mSharedPref = ((AppController) context.getApplicationContext()).getSharedPref();
         //final ArrayList<HomeAssistantServer> mServers = databaseManager.getConnections();
         //final HomeAssistantServer mCurrentServer = mServers.get(mSharedPref.getInt("connectionIndex", 0));

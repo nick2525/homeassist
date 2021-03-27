@@ -33,7 +33,7 @@ public class QueryEntitiesByGroupAsyncTask extends AsyncTask<Void, Void, ArrayLi
 //            e.printStackTrace();
 //        }
 
-        ArrayList<Entity> entities = DatabaseManager.getInstance(mContext).getEntitiesByGroup(mGroup.groupId);
+        ArrayList<Entity> entities = DatabaseManager.Companion.getInstance(mContext).getEntitiesByGroup(mGroup.groupId);
         Comparator<Entity> comparator = SortEntityAsyncTask.comparators.get(mGroup.sortKey);
         Collections.sort(entities, comparator);
         return entities;

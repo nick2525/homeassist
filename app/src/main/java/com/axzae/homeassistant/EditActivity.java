@@ -152,7 +152,7 @@ public class EditActivity extends BaseActivity {
         mRecyclerView = findViewById(R.id.recycler_view);
 
         mItems.clear();
-        mItems.addAll(DatabaseManager.getInstance(this).getDashboard(mGroup.groupId));
+        mItems.addAll(DatabaseManager.Companion.getInstance(this).getDashboard(mGroup.groupId));
 
         mAdapter = new EntityAdapter(mItems);
         mRecyclerView.setAdapter(mAdapter);
@@ -276,7 +276,7 @@ public class EditActivity extends BaseActivity {
     }
 
     private void showAddDialog() {
-        if (mEntities == null) mEntities = DatabaseManager.getInstance(this).getEntities();
+        if (mEntities == null) mEntities = DatabaseManager.Companion.getInstance(this).getEntities();
 
         Collections.sort(mEntities, new Comparator<Entity>() {
             @Override
@@ -330,7 +330,7 @@ public class EditActivity extends BaseActivity {
 
     private void addDefault() {
         mItems.clear();
-        ArrayList<Entity> entities = DatabaseManager.getInstance(this).getEntities();
+        ArrayList<Entity> entities = DatabaseManager.Companion.getInstance(this).getEntities();
         for (Entity entity : entities) {
             if (entity.isSupported()) mItems.add(entity);
         }
@@ -667,8 +667,8 @@ public class EditActivity extends BaseActivity {
         @Override
         protected ErrorMessage doInBackground(Void... params) {
             try {
-                DatabaseManager.getInstance(EditActivity.this).updateDashboard(mGroup.groupId, mAdapter.getItems());
-                DatabaseManager.getInstance(EditActivity.this).updateSortKeyForGroup(0, mGroup.groupId);
+                DatabaseManager.Companion.getInstance(EditActivity.this).updateDashboard(mGroup.groupId, mAdapter.getItems());
+                DatabaseManager.Companion.getInstance(EditActivity.this).updateSortKeyForGroup(0, mGroup.groupId);
             } catch (Exception e) {
                 e.printStackTrace();
                 return new ErrorMessage("System Exception", e.toString());

@@ -204,7 +204,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         uiSettings.setAllGesturesEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
 
-        DatabaseManager databaseManager = DatabaseManager.getInstance(this);
+        DatabaseManager databaseManager = DatabaseManager.Companion.getInstance(this);
         ArrayList<Entity> devices = databaseManager.getDeviceLocations();
 
 

@@ -46,7 +46,7 @@ public class WidgetConfigActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_widget_config);
         setResult(RESULT_CANCELED);
-        mDatabaseManager = DatabaseManager.getInstance(this).forceCreate();
+        mDatabaseManager = DatabaseManager.Companion.getInstance(this).forceCreate();
 
         setupToolbar();
         initListViews();

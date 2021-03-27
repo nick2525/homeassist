@@ -30,7 +30,7 @@ public class BaseActivity extends AppCompatActivity {
         editor.apply();
 
         //Clear All Data in both tables.
-        DatabaseManager.getInstance(this).clear();
+        DatabaseManager.Companion.getInstance(this).clear();
 
         Intent i = new Intent(this, ConnectActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);

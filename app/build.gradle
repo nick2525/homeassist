@@ -82,6 +82,10 @@ android {
         checkReleaseBuilds false
     }
 
+    compileOptions {
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+    }
 }
 
 dependencies {
@@ -155,6 +159,7 @@ dependencies {
         exclude group: 'glide-parent'
     }
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
 
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'com.squareup.retrofit2:retrofit-mock:2.1.0'

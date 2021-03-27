@@ -231,7 +231,7 @@ public class LogbookActivity extends AppCompatActivity {
         Entity result = mEntities.get(entityId);
 
         if (result == null) {
-            DatabaseManager databaseManager = DatabaseManager.getInstance(LogbookActivity.this);
+            DatabaseManager databaseManager = DatabaseManager.Companion.getInstance(LogbookActivity.this);
             Entity entity = databaseManager.getEntityById(entityId);
             mEntities.put(entityId, entity);
             result = entity;

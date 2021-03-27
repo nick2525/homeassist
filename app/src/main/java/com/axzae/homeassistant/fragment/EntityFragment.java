@@ -298,7 +298,7 @@ public class EntityFragment extends BaseFragment implements EntityInterface {
 
     public void sortEntity(int newSortKey) {
         //Update/Save newSortKey to database
-        DatabaseManager.getInstance(getActivity()).updateSortKeyForGroup(newSortKey, mGroup.groupId);
+        DatabaseManager.Companion.getInstance(getActivity()).updateSortKeyForGroup(newSortKey, mGroup.groupId);
         mGroup.sortKey = newSortKey;
 
         new SortEntityAsyncTask(new ArrayList<>(mAdapter.getDisplayItems()), new EntityAsyncCallback() {

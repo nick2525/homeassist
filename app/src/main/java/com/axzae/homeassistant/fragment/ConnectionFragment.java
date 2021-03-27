@@ -185,7 +185,7 @@ public class ConnectionFragment extends DialogFragment implements View.OnClickLi
 
                         Activity activity = getActivity();
                         if (activity != null && !activity.isFinishing()) {
-                            DatabaseManager.getInstance(activity).addConnection(connection);
+                            DatabaseManager.Companion.getInstance(activity).addConnection(connection);
                             dismiss();
                         }
                     }

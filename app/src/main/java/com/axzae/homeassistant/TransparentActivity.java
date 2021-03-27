@@ -88,7 +88,7 @@ public class TransparentActivity extends BaseActivity implements DialogInterface
         super.onCreate(savedInstanceState);
 
         mSharedPref = getAppController().getSharedPref();
-        mServers = DatabaseManager.getInstance(this).getConnections();
+        mServers = DatabaseManager.Companion.getInstance(this).getConnections();
         mCurrentServer = mServers.get(mSharedPref.getInt("connectionIndex", 0));
         mWidgetId = getIntent().getIntExtra("appWidgetId", 0);
 
@@ -115,7 +115,7 @@ public class TransparentActivity extends BaseActivity implements DialogInterface
                     Entity restResponse = response.body();
                     if (restResponse != null) {
                         getContentResolver().update(Uri.parse("content://com.axzae.homeassistant.provider.EntityContentProvider/"), restResponse.getContentValues(), "ENTITY_ID='" + restResponse.entityId + "'", null);
-                        Widget newWidget = DatabaseManager.getInstance(TransparentActivity.this).getWidgetById(mWidgetId);
+                        Widget newWidget = DatabaseManager.Companion.getInstance(TransparentActivity.this).getWidgetById(mWidgetId);
                         EntityWidgetProvider.updateEntityWidget(TransparentActivity.this, newWidget);
                     }
                 }

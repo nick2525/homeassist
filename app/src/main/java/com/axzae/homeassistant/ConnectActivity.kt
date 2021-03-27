@@ -203,7 +203,7 @@ class ConnectActivity : BaseActivity() {
                 publishProgress(getString(R.string.progress_connecting))
 
                 //Response<BootstrapResponse> response = ServiceProvider.getApiService(mUri).bootstrap(mPassword).execute();
-                val response = ServiceProvider.getRawApiService(mUri).rawStates(mPassword).execute()
+                val response = ServiceProvider.getRawApiService(mUri).rawStates(mPassword)!!.execute()
                 if (response.code() != 200) {
                     if (response.code() == 401) {
                         return ErrorMessage("Error 401", getString(R.string.error_invalid_password))
@@ -231,8 +231,8 @@ class ConnectActivity : BaseActivity() {
                 editor.putLong(EXTRA_LAST_REQUEST, System.currentTimeMillis()).apply()
                 editor.apply()
                 val databaseManager = DatabaseManager.getInstance(this@ConnectActivity)
-                databaseManager.updateTables(bootstrapResponse)
-                databaseManager.addConnection(HomeAssistantServer(mUri, mPassword))
+                databaseManager?.updateTables(bootstrapResponse)
+                databaseManager?.addConnection(HomeAssistantServer(mUri, mPassword))
                 //                ArrayList<Entity> entities = databaseManager.getEntities();
                 //                for (Entity entity : entities) {
                 //                    Log.d("YouQi", "Entity: " + entity.entityId);
@@ -356,8 +356,8 @@ class ConnectActivity : BaseActivity() {
                     appWidgetIds.add(Integer.toString(id))
                 }
                 val databaseManager = DatabaseManager.getInstance(this@ConnectActivity)
-                databaseManager.forceCreate()
-                databaseManager.housekeepWidgets(appWidgetIds)
+                databaseManager?.forceCreate()
+                databaseManager?.housekeepWidgets(appWidgetIds!!)
             }
             //mBundle = getIntent().getExtras();
             return null
@@ -367,11 +367,11 @@ class ConnectActivity : BaseActivity() {
             if (errorMessage == null) {
                 if (mSharedPref!!.getString(EXTRA_IPADDRESS, null) != null) {
                     val databaseManager = DatabaseManager.getInstance(this@ConnectActivity)
-                    val groups = databaseManager.groups
-                    val connections = databaseManager.connections
-                    val dashboardCount = databaseManager.dashboardCount
+                    val groups = databaseManager?.groups
+                    val connections = databaseManager?.connections
+                    val dashboardCount = databaseManager?.dashboardCount
                     Log.d("YouQi", "dashboardCount: $dashboardCount")
-                    if (groups.size != 0 && connections.size != 0 && dashboardCount > 0) {
+                    if (groups?.size != 0 && connections?.size != 0 && dashboardCount!! > 0) {
                         startMainActivity()
                         return
                     }

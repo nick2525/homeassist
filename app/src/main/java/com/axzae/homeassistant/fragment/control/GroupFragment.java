@@ -84,7 +84,7 @@ public class GroupFragment extends BaseControlFragment implements View.OnClickLi
 
     private void refreshUi() {
         ArrayList<String> entityIds = mEntity.attributes.entityIds;
-        DatabaseManager databaseManager = DatabaseManager.getInstance(getActivity());
+        DatabaseManager databaseManager = DatabaseManager.Companion.getInstance(getActivity());
         mItems.clear();
         for (String entityId : entityIds) {
 //            Log.d("YouQi", "entityId: " + entityId);

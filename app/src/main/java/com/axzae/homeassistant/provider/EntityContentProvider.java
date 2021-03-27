@@ -41,7 +41,7 @@ public class EntityContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        mSqliteOpenHelper = DatabaseManager.getInstance(getContext());
+        mSqliteOpenHelper = DatabaseManager.Companion.getInstance(getContext());
         return true;
     }
 
