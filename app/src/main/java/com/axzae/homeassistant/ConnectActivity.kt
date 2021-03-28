@@ -111,12 +111,12 @@ class ConnectActivity : BaseActivity() {
         mProgressBar = findViewById(R.id.progressBar)
         mIpAddressView = findViewById(R.id.text_ipaddress)
         mPasswordView = findViewById(R.id.text_password)
-        mPasswordView?.setOnEditorActionListener({ textView, id, keyEvent ->
-                                                     if (id == R.id.button_connect || id == EditorInfo.IME_NULL || id == EditorInfo.IME_ACTION_DONE) {
-                                                         attemptLogin()
-                                                     }
-                                                     false
-                                                 })
+        mPasswordView?.setOnEditorActionListener { _, id, _ ->
+            if (id == R.id.button_connect || id == EditorInfo.IME_NULL || id == EditorInfo.IME_ACTION_DONE) {
+                attemptLogin()
+            }
+            false
+        }
         mConnectButton = findViewById(R.id.button_connect)
         mConnectButton?.setOnClickListener(View.OnClickListener { attemptLogin() })
         mTextProgress = findViewById(R.id.text_progress)
@@ -340,18 +340,11 @@ class ConnectActivity : BaseActivity() {
 
     private inner class SharedPreferenceLoadingTask internal constructor() : AsyncTask<Void?, Void?, ErrorMessage?>() {
         override fun doInBackground(vararg param: Void?): ErrorMessage? {
-            //            if (!CommonUtil.checkSignature(ConnectActivity.this)) {
-            //                return new ErrorMessage("Error", getString(R.string.error_corrupted));
-            //            }
-            //
-            //            if (android.os.Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN) {
-            //                return new ErrorMessage("Error", getString(R.string.error_jellybean));
-            //            }
             PreferenceManager.setDefaultValues(applicationContext, R.xml.preferences, false)
             mSharedPref = appController.sharedPref
             val ids = AppWidgetManager.getInstance(this@ConnectActivity)
                 .getAppWidgetIds(ComponentName(this@ConnectActivity, EntityWidgetProvider::class.java))
-            if (ids.size > 0) {
+            if (ids.isNotEmpty()) {
                 val appWidgetIds = ArrayList<String>()
                 for (id in ids) {
                     appWidgetIds.add(Integer.toString(id))

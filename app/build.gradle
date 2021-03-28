@@ -4,43 +4,16 @@ buildscript {
         jcenter()
     }
 
-    dependencies {
-        //classpath 'com.google.firebase:firebase-plugins:1.1.1'
-    }
-
 }
 
-import org.ajoberstar.grgit.Grgit
-
-ext {
-    git = Grgit.open(currentDir: projectDir)
-    gitVersionName = "-community-public" //git.describe()
-    gitVersionCode = "0.0.1" //git.tag.list().size()
-    gitVersionCodeTime = "community-time" //git.head().time
-}
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'com.google.firebase.firebase-perf'
+apply plugin: 'com.google.gms.google-services'
+
 
 repositories {
-    maven { url 'https://maven.fabric.io/public' }
     maven { url "https://jitpack.io" }
-}
-
-
-import java.text.SimpleDateFormat
-
-def buildTime() {
-    def df = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss")
-    df.setTimeZone(TimeZone.getTimeZone("GMT+08:00"))
-    return df.format(new Date())
-}
-
-def buildTimestamp() {
-    def df = new SimpleDateFormat("yyyyMMddHHmmss")
-    df.setTimeZone(TimeZone.getTimeZone("GMT+08:00"))
-    return df.format(new Date())
 }
 
 android {
@@ -60,7 +33,6 @@ android {
         renderscriptSupportModeEnabled true
 
         buildConfigField('String', 'signatureHash', '"97:55:C7:8F:FB:36:FF:45:2A:21:87:01:47:B0:DD:AB:16:4F:C4:0D"')
-        buildConfigField('String', 'buildTime', "\"${buildTime()}\"")
     }
 
     flavorDimensions "default"
@@ -68,7 +40,6 @@ android {
     productFlavors {
         dev {
             dimension "default"
-            versionName gitVersionName
         }
     }
 
@@ -158,7 +129,6 @@ dependencies {
     implementation ('com.github.bumptech.glide:okhttp3-integration:4.12.0'){
         exclude group: 'glide-parent'
     }
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
     implementation "androidx.activity:activity-ktx:1.2.2"
@@ -169,5 +139,3 @@ dependencies {
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.1'
 
 }
-
-apply plugin: 'com.google.gms.google-services'

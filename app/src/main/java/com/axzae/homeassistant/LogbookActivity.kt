@@ -237,14 +237,14 @@ class LogbookActivity : AppCompatActivity() {
                 )
             )
             viewHolder.mIconView.text = MDIFont.getIcon("mdi:information-outline")
-            val entity = getEntity(logSheet.entityId)
+            val entity = getEntity(logSheet.entityId.orEmpty())
             if (entity != null) {
                 viewHolder.mIconView.text = entity.mdiIcon
             }
             val wordtoSpan1: Spannable = SpannableString(logSheet.name)
             wordtoSpan1.setSpan(RelativeSizeSpan(1.0f), 0, wordtoSpan1.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
             wordtoSpan1.setSpan(StyleSpan(Typeface.BOLD), 0, wordtoSpan1.length, 0)
-            val wordtoSpan2: Spannable = SpannableString(logSheet.message)
+            val wordtoSpan2: Spannable = SpannableString(logSheet.message.orEmpty())
             wordtoSpan2.setSpan(
                 ForegroundColorSpan(ResourcesCompat.getColor(resources, R.color.md_grey_500, null)),
                 0,

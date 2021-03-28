@@ -46,13 +46,13 @@ public class SettingsFragment extends PreferenceFragmentCompat implements Shared
 
         Preference buildPref = findPreference("build");
         try {
-            buildPref.setSummary(BuildConfig.BUILD_TYPE + " \u2022 " + BuildConfig.buildTime);
+            buildPref.setSummary(BuildConfig.BUILD_TYPE + " \u2022 ");
 
             buildPref.setOnPreferenceClickListener(new androidx.preference.Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(androidx.preference.Preference preference) {
                     if (--countDown <= 0) {
-                        preference.setSummary(BuildConfig.FLAVOR + " \u2022 " + BuildConfig.BUILD_TYPE + " \u2022 " + BuildConfig.buildTime);
+                        preference.setSummary(BuildConfig.FLAVOR + " \u2022 " + BuildConfig.BUILD_TYPE + " \u2022 ");
                     }
                     return false;
                 }

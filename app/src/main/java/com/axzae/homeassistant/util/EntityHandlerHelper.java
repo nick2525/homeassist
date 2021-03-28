@@ -63,7 +63,7 @@ public class EntityHandlerHelper {
             InputSliderFragment fragment = InputSliderFragment.newInstance(entity);
             fragment.show(fragmentManager, null);
         } else if (entity.isSensor()) {
-            SensorFragment fragment = SensorFragment.newInstance(entity, server);
+            SensorFragment fragment = SensorFragment.Companion.newInstance(entity, server);
             fragment.show(fragmentManager, null);
         } else if (entity.isSun()) {
             SunFragment fragment = SunFragment.newInstance(entity);
@@ -143,7 +143,7 @@ public class EntityHandlerHelper {
             InputSliderFragment fragment = InputSliderFragment.newInstance(entity);
             fragment.show(fragmentManager, null);
         } else if (entity.isSensor()) {
-            SensorFragment fragment = SensorFragment.newInstance(entity, server);
+            SensorFragment fragment = SensorFragment.Companion.newInstance(entity, server);
             fragment.show(fragmentManager, null);
         } else if (entity.isSun()) {
             SunFragment fragment = SunFragment.newInstance(entity);
