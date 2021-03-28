@@ -9,8 +9,6 @@ import android.content.SharedPreferences
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Bundle
-import android.os.StrictMode
-import android.os.StrictMode.VmPolicy
 import android.preference.PreferenceManager
 import com.google.android.material.snackbar.Snackbar
 import androidx.core.content.res.ResourcesCompat
@@ -40,6 +38,13 @@ import com.axzae.homeassistant.provider.ServiceProvider
 import com.axzae.homeassistant.util.CommonUtil
 import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.PrintWriter
@@ -47,11 +52,12 @@ import java.io.StringWriter
 import java.text.SimpleDateFormat
 import java.util.ArrayList
 import java.util.Locale
+import kotlin.coroutines.CoroutineContext
 
 /**
  * A login screen that offers login via username/password.
  */
-class ConnectActivity : BaseActivity() {
+class ConnectActivity : BaseActivity(), CoroutineScope {
     private var mSharedPref: SharedPreferences? = null
     private var settingCountDown = 5
 
@@ -62,7 +68,6 @@ class ConnectActivity : BaseActivity() {
     private var mProgressBar: ProgressBar? = null
     private var mSnackbar: Snackbar? = null
     private var mConnectButton: Button? = null
-    private var mAuthTask: UserLoginTask? = null
     private var mLayoutMain: LinearLayout? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -184,80 +189,24 @@ class ConnectActivity : BaseActivity() {
         } else {
             showProgress(true, getString(R.string.progress_connecting))
             val host = Uri.parse(baseURL).host.orEmpty()
-            Log.d("YouQi", "baseURL: $baseURL")
-            Log.d("YouQi", "host: $host")
-            if (mAuthTask == null) {
-                mAuthTask = UserLoginTask(baseURL, host, password)
-                mAuthTask!!.execute(null as Void?)
-            }
+
+            makeUserLogin(baseURL, host, password)
         }
     }
 
-    private inner class UserLoginTask internal constructor(
-        private val mUri: String,
-        private val mIpAddress: String,
-        private val mPassword: String
-    ) : AsyncTask<Void?, String?, ErrorMessage?>() {
-        private var mBoostrapData: String? = null
-        override fun doInBackground(vararg params: Void?): ErrorMessage? {
-            try {
-                publishProgress(getString(R.string.progress_connecting))
-
-                //Response<BootstrapResponse> response = ServiceProvider.getApiService(mUri).bootstrap(mPassword).execute();
-                val response = ServiceProvider.getRawApiService(mUri).rawStates(mPassword)!!.execute()
-                if (response.code() != 200) {
-                    if (response.code() == 401) {
-                        return ErrorMessage("Error 401", getString(R.string.error_invalid_password))
-                    }
-                    return if (response.code() == 404) {
-                        ErrorMessage("Error 404", getString(R.string.error_invalid_ha_server))
-                    } else ErrorMessage("Error" + response.code(), response.message())
-
-                    //OAuthToken token = new Gson().fromJson(response.errorBody().string(), OAuthToken.class);
-                }
-                mBoostrapData = response.body()
-                val bootstrapResponse = CommonUtil.inflate<ArrayList<Entity>>(
-                    mBoostrapData,
-                    object : TypeToken<ArrayList<Entity?>?>() {}.type
-                )
-                //final BootstrapResponse bootstrapResponse = CommonUtil.inflate(CommonUtil.readFromAssets(ConnectActivity.this, "bootstrap.txt"), BootstrapResponse.class);
-                //final BootstrapResponse bootstrapResponse = response.body();
-                CommonUtil.logLargeString("YouQi", "bootstrapResponse: $bootstrapResponse")
-                publishProgress(getString(R.string.progress_bootstrapping))
-                val editor = mSharedPref!!.edit()
-                editor.putString(EXTRA_FULL_URI, mUri)
-                editor.putString(EXTRA_IPADDRESS, mIpAddress)
-                editor.putString(EXTRA_PASSWORD, mPassword)
-                editor.putInt("connectionIndex", 0)
-                editor.putLong(EXTRA_LAST_REQUEST, System.currentTimeMillis()).apply()
-                editor.apply()
-                val databaseManager = DatabaseManager.getInstance(this@ConnectActivity)
-                databaseManager?.updateTables(bootstrapResponse)
-                databaseManager?.addConnection(HomeAssistantServer(mUri, mPassword))
-                //                ArrayList<Entity> entities = databaseManager.getEntities();
-                //                for (Entity entity : entities) {
-                //                    Log.d("YouQi", "Entity: " + entity.entityId);
-                //                }
-
-                //Crashlytics.setUserIdentifier(settings.bootstrapResponse.profile.loginId);
-            } catch (e: JsonSyntaxException) {
-                e.printStackTrace()
-                return ErrorMessage("JsonSyntaxException", e)
-            } catch (e: Exception) {
-                Log.d("YouQi", "ERROR!")
-                e.printStackTrace()
-                return ErrorMessage(e.message, e.toString())
-            }
-            return null
-        }
-
-        protected override fun onProgressUpdate(vararg values: String?) {
-            super.onProgressUpdate(*values)
-            mConnectButton!!.text = values.first()
-        }
-
-        override fun onPostExecute(errorMessage: ErrorMessage?) {
-            mAuthTask = null
+    private fun makeUserLogin(mUri: String, mIpAddress: String, mPassword: String){
+        this.launch {
+            mIpAddressView!!.isEnabled = false
+            mPasswordView!!.isEnabled = false
+            mConnectButton!!.isEnabled = false
+            mProgressBar!!.visibility = View.VISIBLE
+            mTextProgress!!.visibility = View.VISIBLE
+            mConnectButton?.text = getString(R.string.progress_connecting)
+            val response = getResponse(mUri, mPassword)
+            val errorMessage = getErrorMessage(response)
+            val boostrapData = getBoostrapData(response)
+            mConnectButton?.text = getString(R.string.progress_bootstrapping)
+            putInDb(mUri, mPassword, mIpAddress, boostrapData)
             if (errorMessage == null) {
                 mConnectButton!!.setText(R.string.progress_starting)
                 startMainActivity()
@@ -271,23 +220,60 @@ class ConnectActivity : BaseActivity() {
                 mPasswordView!!.requestFocus()
                 showError(errorMessage.message)
                 if (errorMessage.throwable != null) {
-                    sendEmail(mBoostrapData, errorMessage.throwable)
+                    sendEmail(response.body(), errorMessage.throwable)
                 }
             }
         }
+    }
 
-        override fun onCancelled() {
-            mAuthTask = null
-            //showProgress(false);
-        }
+    suspend fun getResponse(mUri: String, mPassword: String) = withContext(Dispatchers.IO) {
+        ServiceProvider.getRawApiService(mUri).rawStates(mPassword)!!.execute()
+    }
 
-        init {
-            mIpAddressView!!.isEnabled = false
-            mPasswordView!!.isEnabled = false
-            mConnectButton!!.isEnabled = false
-            mProgressBar!!.visibility = View.VISIBLE
-            mTextProgress!!.visibility = View.VISIBLE
+    suspend fun getErrorMessage(response:Response<String?>) = withContext(Dispatchers.IO) {
+        var errorMessage: ErrorMessage? = null
+        if (response.code() != 200) {
+            if (response.code() == 401) {
+                errorMessage=  ErrorMessage("Error 401", getString(R.string.error_invalid_password))
+            }
+            if (response.code() == 404) {
+                errorMessage = ErrorMessage("Error 404", getString(R.string.error_invalid_ha_server))
+            } else {
+                errorMessage = ErrorMessage("Error" + response.code(), response.message())
+            }
+
         }
+        errorMessage
+    }
+
+    suspend fun putInDb(
+        mUri: String,
+        mPassword: String,
+        mIpAddress: String,
+        bootstrapResponse: ArrayList<Entity>?
+    ) = withContext(Dispatchers.IO) {
+        val editor = mSharedPref!!.edit()
+        editor.putString(EXTRA_FULL_URI, mUri)
+        editor.putString(EXTRA_IPADDRESS, mIpAddress)
+        editor.putString(EXTRA_PASSWORD, mPassword)
+        editor.putInt("connectionIndex", 0)
+        editor.putLong(EXTRA_LAST_REQUEST, System.currentTimeMillis()).apply()
+        editor.apply()
+        val databaseManager = DatabaseManager.getInstance(this@ConnectActivity)
+        databaseManager?.updateTables(bootstrapResponse)
+        databaseManager?.addConnection(HomeAssistantServer(mUri, mPassword))
+    }
+
+    suspend fun getBoostrapData(response:Response<String?>) = withContext(Dispatchers.IO) {
+        val mBoostrapData = response.body()
+        val bootstrapResponse = CommonUtil.inflate<ArrayList<Entity>>(
+            mBoostrapData,
+            object : TypeToken<ArrayList<Entity?>?>() {}.type
+        )
+        //final BootstrapResponse bootstrapResponse = CommonUtil.inflate(CommonUtil.readFromAssets(ConnectActivity.this, "bootstrap.txt"), BootstrapResponse.class);
+        //final BootstrapResponse bootstrapResponse = response.body();
+        CommonUtil.logLargeString("YouQi", "bootstrapResponse: $bootstrapResponse")
+        bootstrapResponse
     }
 
     private fun showError(message: String) {
@@ -301,7 +287,7 @@ class ConnectActivity : BaseActivity() {
     }
 
     private fun isPasswordValid(password: String): Boolean {
-        return password.length > 0
+        return password.isNotEmpty()
     }
 
     private fun showProgress(show: Boolean, message: String?) {
@@ -454,4 +440,13 @@ class ConnectActivity : BaseActivity() {
         const val EXTRA_PASSWORD = "password"
         const val EXTRA_LAST_REQUEST = "last_request"
     }
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + SupervisorJob()
+
+    override fun onDestroy() {
+        super.onDestroy()
+        coroutineContext[Job]?.cancel()
+    }
+
 }
