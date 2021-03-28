@@ -28,6 +28,7 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.isGone
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.StackingBehavior
 import com.axzae.homeassistant.model.Entity
@@ -252,7 +253,7 @@ class ConnectActivity : BaseActivity() {
 
         protected override fun onProgressUpdate(vararg values: String?) {
             super.onProgressUpdate(*values)
-            mConnectButton!!.text = values[0]
+            mConnectButton!!.text = values.first()
         }
 
         override fun onPostExecute(errorMessage: ErrorMessage?) {
@@ -385,7 +386,7 @@ class ConnectActivity : BaseActivity() {
                 }
                 showProgress(false, null)
             } else {
-                mProgressBar!!.visibility = View.GONE
+                mProgressBar?.isGone = true
                 mConnectButton!!.visibility = View.GONE
                 mTextProgress!!.text = errorMessage.message
             }

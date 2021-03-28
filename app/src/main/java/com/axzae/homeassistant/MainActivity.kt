@@ -91,12 +91,17 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.newSingleThreadContext
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.ArrayList
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener, EntityProcessInterface,
     EventEmitterInterface, CoroutineScope {
@@ -838,25 +843,27 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         this.launch {
             showNetworkBusy()
             mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = false
-            val errorMessage = refreshWork()
+            val errorMessage:ErrorMessage? = refreshWork()
             showNetworkIdle()
             mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = true
             mSwipeRefresh!!.isRefreshing = false
             if (errorMessage != null) {
-                showError(errorMessage.message)
+                showError(errorMessage?.message)
             }
         }
     }
 
-    suspend fun refreshWork(): ErrorMessage? {
+    suspend fun refreshWork() = withContext(Dispatchers.IO) {
+        var result: ErrorMessage? = null
+
         try {
             val response = ServiceProvider.getApiService(
                 mCurrentServer!!.baseUrl
             ).getStates(mCurrentServer!!.getPassword())?.execute()
             if (response?.code() != 200) {
-                return ErrorMessage("Error", response?.message())
+                result = ErrorMessage("Error", response?.message())
             }
-            val statesResponse = response.body() ?: throw RuntimeException("No Data")
+            val statesResponse = response?.body() ?: throw RuntimeException("No Data")
             val values = ArrayList<ContentValues>()
             for (entity: Entity? in statesResponse) {
                 values.add(entity!!.contentValues)
@@ -864,9 +871,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             contentResolver.bulkInsert(EntityContentProvider.getUrl(), values.toTypedArray())
         } catch (e: Exception) {
             e.printStackTrace()
-            return ErrorMessage("System Exception", FaultUtil.getPrintableMessage(this@MainActivity, e))
+            result = ErrorMessage("System Exception", FaultUtil.getPrintableMessage(this@MainActivity, e))
         }
-        return null
+        result
     }
 
     fun showSortOptions() {
