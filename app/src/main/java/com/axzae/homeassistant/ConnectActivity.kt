@@ -23,12 +23,13 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
-import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.StackingBehavior
+import com.axzae.homeassistant.databinding.ActivityConnectBinding
 import com.axzae.homeassistant.model.Entity
 import com.axzae.homeassistant.model.ErrorMessage
 import com.axzae.homeassistant.model.HomeAssistantServer
@@ -58,6 +59,7 @@ import kotlin.coroutines.CoroutineContext
  * A login screen that offers login via username/password.
  */
 class ConnectActivity : BaseActivity(), CoroutineScope {
+    private lateinit var binding: ActivityConnectBinding
     private var mSharedPref: SharedPreferences? = null
     private var settingCountDown = 5
 
@@ -65,13 +67,13 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
     private var mIpAddressView: EditText? = null
     private var mPasswordView: EditText? = null
     private var mTextProgress: TextView? = null
-    private var mProgressBar: ProgressBar? = null
     private var mSnackbar: Snackbar? = null
     private var mConnectButton: Button? = null
     private var mLayoutMain: LinearLayout? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_connect)
+        binding = ActivityConnectBinding.inflate(layoutInflater)
         mLayoutMain = findViewById(R.id.main_layout)
         mLayoutMain?.setVisibility(View.GONE)
         //Send a Google Analytics screen view.
@@ -113,7 +115,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
             }
             true
         }
-        mProgressBar = findViewById(R.id.progressBar)
+
         mIpAddressView = findViewById(R.id.text_ipaddress)
         mPasswordView = findViewById(R.id.text_password)
         mPasswordView?.setOnEditorActionListener { _, id, _ ->
@@ -199,7 +201,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
             mIpAddressView!!.isEnabled = false
             mPasswordView!!.isEnabled = false
             mConnectButton!!.isEnabled = false
-            mProgressBar!!.visibility = View.VISIBLE
+            binding.progressBar.isVisible = true
             mTextProgress!!.visibility = View.VISIBLE
             mConnectButton?.text = getString(R.string.progress_connecting)
             val response = getResponse(mUri, mPassword)
@@ -215,7 +217,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
                 mPasswordView!!.isEnabled = true
                 mConnectButton!!.isEnabled = true
                 mConnectButton!!.setText(R.string.button_connect)
-                mProgressBar!!.visibility = View.GONE
+                binding.progressBar.isGone = true
                 mTextProgress!!.visibility = View.GONE
                 mPasswordView!!.requestFocus()
                 showError(errorMessage.message)
@@ -298,14 +300,14 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
                 mPasswordView!!.isEnabled = false
                 mConnectButton!!.isEnabled = false
                 mConnectButton!!.text = message
-                mProgressBar!!.visibility = View.VISIBLE
+                binding.progressBar.isVisible = true
                 mTextProgress!!.visibility = View.VISIBLE
             } else {
                 mIpAddressView!!.isEnabled = true
                 mPasswordView!!.isEnabled = true
                 mConnectButton!!.isEnabled = true
                 mConnectButton!!.setText(R.string.button_connect)
-                mProgressBar!!.visibility = View.GONE
+                binding.progressBar.isGone = true
                 mTextProgress!!.visibility = View.GONE
             }
         }
@@ -365,7 +367,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
                 }
                 showProgress(false, null)
             } else {
-                mProgressBar?.isGone = true
+                binding.progressBar.isGone = true
                 mConnectButton!!.visibility = View.GONE
                 mTextProgress!!.text = errorMessage.message
             }
