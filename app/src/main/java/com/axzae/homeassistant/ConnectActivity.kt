@@ -20,10 +20,6 @@ import android.view.View
 import android.view.animation.OvershootInterpolator
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.Button
-import android.widget.EditText
-import android.widget.LinearLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
@@ -37,7 +33,6 @@ import com.axzae.homeassistant.provider.DatabaseManager
 import com.axzae.homeassistant.provider.EntityWidgetProvider
 import com.axzae.homeassistant.provider.ServiceProvider
 import com.axzae.homeassistant.util.CommonUtil
-import com.google.gson.JsonSyntaxException
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -64,18 +59,13 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
     private var settingCountDown = 5
 
     // UI references.
-    private var mIpAddressView: EditText? = null
-    private var mPasswordView: EditText? = null
-    private var mTextProgress: TextView? = null
     private var mSnackbar: Snackbar? = null
-    private var mConnectButton: Button? = null
-    private var mLayoutMain: LinearLayout? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_connect)
         binding = ActivityConnectBinding.inflate(layoutInflater)
-        mLayoutMain = findViewById(R.id.main_layout)
-        mLayoutMain?.setVisibility(View.GONE)
+        val view = binding.root
+        setContentView(view)
+        binding.mainLayout.isGone = true
         //Send a Google Analytics screen view.
         //Tracker tracker = getAppController().getDefaultTracker();
         //tracker.send(new HitBuilders.ScreenViewBuilder().build());
@@ -86,7 +76,10 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
             e.printStackTrace()
             Log.d("YouQi", "Date2: " + e.message)
         }
-        findViewById<View>(R.id.splash_logo).setOnTouchListener { v, event ->
+        binding.splashLogo.setOnTouchListener { v, event ->
+            if(event.action == MotionEvent.ACTION_UP){
+                v.performClick()
+            }
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     val scaleDownX = ObjectAnimator.ofFloat(v, "scaleX", 0.95f)
@@ -116,17 +109,13 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
             true
         }
 
-        mIpAddressView = findViewById(R.id.text_ipaddress)
-        mPasswordView = findViewById(R.id.text_password)
-        mPasswordView?.setOnEditorActionListener { _, id, _ ->
+        binding.textPassword.setOnEditorActionListener { _, id, _ ->
             if (id == R.id.button_connect || id == EditorInfo.IME_NULL || id == EditorInfo.IME_ACTION_DONE) {
                 attemptLogin()
             }
             false
         }
-        mConnectButton = findViewById(R.id.button_connect)
-        mConnectButton?.setOnClickListener(View.OnClickListener { attemptLogin() })
-        mTextProgress = findViewById(R.id.text_progress)
+        binding.buttonConnect.setOnClickListener { attemptLogin() }
     }
 
     override fun onStart() {
@@ -156,34 +145,33 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         }
 
         // Reset errors.
-        mIpAddressView!!.error = null
-        mPasswordView!!.error = null
+        binding.textIpaddress.error = null
+        binding.textPassword.error = null
 
         // Store values at the time of the login attempt.
-        var baseURL = mIpAddressView!!.text.toString().trim { it <= ' ' }
-        val password = mPasswordView!!.text.toString()
+        var baseURL = binding.textIpaddress.text.toString().trim()
+        val password = binding.textPassword.text.toString()
         if (baseURL.endsWith("/")) {
             baseURL = baseURL.substring(0, baseURL.length - 1)
-            mIpAddressView!!.setText(baseURL)
+            binding.textIpaddress.setText(baseURL)
         }
         var cancel = false
         var focusView: View? = null
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView!!.error = getString(R.string.error_invalid_password)
-            focusView = mPasswordView
+        if (password.isEmpty() && !isPasswordValid(password)) {
+            binding.textPassword.error = getString(R.string.error_invalid_password)
+            focusView = binding.textPassword
             cancel = true
         }
 
         // Check for a valid email address.
-        if (TextUtils.isEmpty(baseURL)) {
-            mIpAddressView!!.error = getString(R.string.error_field_required)
-            focusView = mIpAddressView
+        if (baseURL.isEmpty()) {
+            binding.textIpaddress.error = getString(R.string.error_field_required)
+            focusView = binding.textIpaddress
             cancel = true
         } else if (!(baseURL.startsWith("http://") || baseURL.startsWith("https://"))) {
-            mIpAddressView!!.error = getString(R.string.error_invalid_baseurl)
-            focusView = mIpAddressView
+            binding.textIpaddress.error = getString(R.string.error_invalid_baseurl)
+            focusView = binding.textIpaddress
             cancel = true
         }
         if (cancel) {
@@ -196,30 +184,30 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         }
     }
 
-    private fun makeUserLogin(mUri: String, mIpAddress: String, mPassword: String){
+    private fun makeUserLogin(mUri: String, mIpAddress: String, mPassword: String) {
         this.launch {
-            mIpAddressView!!.isEnabled = false
-            mPasswordView!!.isEnabled = false
-            mConnectButton!!.isEnabled = false
+            binding.textIpaddress.isEnabled = false
+            binding.textPassword.isEnabled = false
+            binding.buttonConnect.isEnabled = false
             binding.progressBar.isVisible = true
-            mTextProgress!!.visibility = View.VISIBLE
-            mConnectButton?.text = getString(R.string.progress_connecting)
+            binding.textProgress.visibility = View.VISIBLE
+            binding.buttonConnect.text = getString(R.string.progress_connecting)
             val response = getResponse(mUri, mPassword)
             val errorMessage = getErrorMessage(response)
             val boostrapData = getBoostrapData(response)
-            mConnectButton?.text = getString(R.string.progress_bootstrapping)
+            binding.buttonConnect.text = getString(R.string.progress_bootstrapping)
             putInDb(mUri, mPassword, mIpAddress, boostrapData)
             if (errorMessage == null) {
-                mConnectButton!!.setText(R.string.progress_starting)
+                binding.buttonConnect.setText(R.string.progress_starting)
                 startMainActivity()
             } else {
-                mIpAddressView!!.isEnabled = true
-                mPasswordView!!.isEnabled = true
-                mConnectButton!!.isEnabled = true
-                mConnectButton!!.setText(R.string.button_connect)
+                binding.textIpaddress.isEnabled = true
+                binding.textPassword.isEnabled = true
+                binding.buttonConnect.isEnabled = true
+                binding.buttonConnect.setText(R.string.button_connect)
                 binding.progressBar.isGone = true
-                mTextProgress!!.visibility = View.GONE
-                mPasswordView!!.requestFocus()
+                binding.textProgress.visibility = View.GONE
+                binding.textPassword.requestFocus()
                 showError(errorMessage.message)
                 if (errorMessage.throwable != null) {
                     sendEmail(response.body(), errorMessage.throwable)
@@ -232,11 +220,11 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         ServiceProvider.getRawApiService(mUri).rawStates(mPassword)!!.execute()
     }
 
-    suspend fun getErrorMessage(response:Response<String?>) = withContext(Dispatchers.IO) {
+    suspend fun getErrorMessage(response: Response<String?>) = withContext(Dispatchers.IO) {
         var errorMessage: ErrorMessage? = null
         if (response.code() != 200) {
             if (response.code() == 401) {
-                errorMessage=  ErrorMessage("Error 401", getString(R.string.error_invalid_password))
+                errorMessage = ErrorMessage("Error 401", getString(R.string.error_invalid_password))
             }
             if (response.code() == 404) {
                 errorMessage = ErrorMessage("Error 404", getString(R.string.error_invalid_ha_server))
@@ -266,7 +254,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         databaseManager?.addConnection(HomeAssistantServer(mUri, mPassword))
     }
 
-    suspend fun getBoostrapData(response:Response<String?>) = withContext(Dispatchers.IO) {
+    suspend fun getBoostrapData(response: Response<String?>) = withContext(Dispatchers.IO) {
         val mBoostrapData = response.body()
         val bootstrapResponse = CommonUtil.inflate<ArrayList<Entity>>(
             mBoostrapData,
@@ -294,21 +282,21 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
 
     private fun showProgress(show: Boolean, message: String?) {
         runOnUiThread {
-            mTextProgress!!.visibility = View.GONE
+            binding.textProgress.isGone = true
             if (show) {
-                mIpAddressView!!.isEnabled = false
-                mPasswordView!!.isEnabled = false
-                mConnectButton!!.isEnabled = false
-                mConnectButton!!.text = message
+                binding.textIpaddress.isEnabled = false
+                binding.textPassword.isEnabled = false
+                binding.buttonConnect.isEnabled = false
+                binding.buttonConnect.text = message
                 binding.progressBar.isVisible = true
-                mTextProgress!!.visibility = View.VISIBLE
+                binding.textProgress.isVisible = true
             } else {
-                mIpAddressView!!.isEnabled = true
-                mPasswordView!!.isEnabled = true
-                mConnectButton!!.isEnabled = true
-                mConnectButton!!.setText(R.string.button_connect)
+                binding.textIpaddress.isEnabled = true
+                binding.textPassword.isEnabled = true
+                binding.buttonConnect.isEnabled = true
+                binding.buttonConnect.setText(R.string.button_connect)
                 binding.progressBar.isGone = true
-                mTextProgress!!.visibility = View.GONE
+                binding.textProgress.isGone = true
             }
         }
     }
@@ -358,18 +346,18 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
                         return
                     }
                 }
-                mLayoutMain!!.visibility = View.VISIBLE
-                mIpAddressView!!.setText(mSharedPref!!.getString(EXTRA_FULL_URI, ""))
-                if (mIpAddressView!!.text.toString().trim { it <= ' ' }.length != 0) {
-                    mPasswordView!!.requestFocus()
+                binding.mainLayout.visibility = View.VISIBLE
+                binding.textIpaddress.setText(mSharedPref!!.getString(EXTRA_FULL_URI, ""))
+                if (binding.textIpaddress.text.toString().trim { it <= ' ' }.isNotEmpty()) {
+                    binding.textPassword.requestFocus()
                 } else {
-                    mIpAddressView!!.requestFocus()
+                    binding.textIpaddress.requestFocus()
                 }
                 showProgress(false, null)
             } else {
                 binding.progressBar.isGone = true
-                mConnectButton!!.visibility = View.GONE
-                mTextProgress!!.text = errorMessage.message
+                binding.buttonConnect.visibility = View.GONE
+                binding.textProgress.text = errorMessage.message
             }
             super.onPostExecute(errorMessage)
         }
@@ -436,15 +424,15 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         return null
     }
 
-    companion object {
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Main + SupervisorJob()
+
+    companion object{
         const val EXTRA_IPADDRESS = "ip_address"
         const val EXTRA_FULL_URI = "full_uri"
         const val EXTRA_PASSWORD = "password"
         const val EXTRA_LAST_REQUEST = "last_request"
     }
-
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + SupervisorJob()
 
     override fun onDestroy() {
         super.onDestroy()

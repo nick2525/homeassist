@@ -1,132 +1,111 @@
-package com.axzae.homeassistant.view;
+package com.axzae.homeassistant.view
 
-import android.content.Context;
-import androidx.appcompat.widget.AppCompatSpinner;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.SpinnerAdapter;
-import android.widget.TextView;
+import android.content.Context
+import android.util.AttributeSet
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.SpinnerAdapter
+import android.widget.TextView
+import androidx.appcompat.widget.AppCompatSpinner
+import java.lang.reflect.InvocationHandler
+import java.lang.reflect.InvocationTargetException
+import java.lang.reflect.Method
+import java.lang.reflect.Proxy
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+class NoDefaultSpinner @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : AppCompatSpinner(context, attrs, defStyleAttr) {
 
-public class NoDefaultSpinner extends AppCompatSpinner {
+    var originalAdapter: SpinnerAdapter? = null
+        private set
 
-    private SpinnerAdapter originalAdapter;
-
-    public NoDefaultSpinner(Context context) {
-        super(context);
-    }
-
-    public NoDefaultSpinner(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public NoDefaultSpinner(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    public SpinnerAdapter getOriginalAdapter() {
-        return originalAdapter;
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         try {
-            int selectedPosition = getSelectedItemPosition();
+            val selectedPosition = selectedItemPosition
             if (selectedPosition == -1) {
-                View view = getAdapter().getView(-1, null, this);
-                view.measure(getMeasuredWidth(), getMeasuredHeight());
-                int height = Math.max(getMeasuredHeight(), view.getMeasuredHeight() + getPaddingBottom() + getPaddingTop());
-                setMeasuredDimension(getMeasuredWidth(), height);
+                val view = adapter.getView(-1, null, this)
+                view.measure(measuredWidth, measuredHeight)
+                val height = Math.max(measuredHeight, view.measuredHeight + paddingBottom + paddingTop)
+                setMeasuredDimension(measuredWidth, height)
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
-    @Override
-    public void setAdapter(SpinnerAdapter orig) {
-        originalAdapter = orig;
-        final SpinnerAdapter adapter = newProxy(orig);
-
-        super.setAdapter(adapter);
-
+    override fun setAdapter(orig: SpinnerAdapter) {
+        originalAdapter = orig
+        val adapter = newProxy(orig)
+        super.setAdapter(adapter)
         try {
-            final Method m = AdapterView.class.getDeclaredMethod("setNextSelectedPositionInt", int.class);
-            m.setAccessible(true);
-            m.invoke(this, -1);
-
-            final Method n = AdapterView.class.getDeclaredMethod("setSelectedPositionInt", int.class);
-            n.setAccessible(true);
-            n.invoke(this, -1);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            val m =
+                AdapterView::class.java.getDeclaredMethod("setNextSelectedPositionInt", Int::class.javaPrimitiveType)
+            m.isAccessible = true
+            m.invoke(this, -1)
+            val n = AdapterView::class.java.getDeclaredMethod("setSelectedPositionInt", Int::class.javaPrimitiveType)
+            n.isAccessible = true
+            n.invoke(this, -1)
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
     }
 
-    protected SpinnerAdapter newProxy(SpinnerAdapter obj) {
-        return (SpinnerAdapter) java.lang.reflect.Proxy.newProxyInstance(
-                obj.getClass().getClassLoader(),
-                new Class[]{SpinnerAdapter.class},
-                new SpinnerAdapterProxy(obj));
+    protected fun newProxy(obj: SpinnerAdapter): SpinnerAdapter {
+        return Proxy.newProxyInstance(
+            obj.javaClass.classLoader, arrayOf<Class<*>>(SpinnerAdapter::class.java),
+            SpinnerAdapterProxy(obj)
+        ) as SpinnerAdapter
     }
-
 
     /**
      * Intercepts getView() to display the prompt if position < 0
      */
-    protected class SpinnerAdapterProxy implements InvocationHandler {
+    protected inner class SpinnerAdapterProxy(protected var obj: SpinnerAdapter) : InvocationHandler {
+        protected var getView: Method? = null
 
-        protected SpinnerAdapter obj;
-        protected Method getView;
-
-        protected SpinnerAdapterProxy(SpinnerAdapter obj) {
-            this.obj = obj;
-            try {
-                this.getView = SpinnerAdapter.class.getMethod(
-                        "getView", int.class, View.class, ViewGroup.class);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
+        @Throws(Throwable::class)
+        override fun invoke(proxy: Any, m: Method, args: Array<Any>): Any {
+            return try {
+                if (m == getView &&
+                    (args[0] as Int) < 0) getView(args[0] as Int, args[1] as View, args[2] as ViewGroup) else m.invoke(
+                    obj, *args
+                )
+            } catch (e: InvocationTargetException) {
+                throw e.targetException
+            } catch (e: Exception) {
+                throw RuntimeException(e)
             }
         }
 
-        public Object invoke(Object proxy, Method m, Object[] args) throws Throwable {
-            try {
-                return m.equals(getView) &&
-                        (Integer) (args[0]) < 0 ?
-                        getView((Integer) args[0], (View) args[1], (ViewGroup) args[2]) :
-                        m.invoke(obj, args);
-            } catch (InvocationTargetException e) {
-                throw e.getTargetException();
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-        protected View getView(int position, View convertView, ViewGroup parent)
-                throws IllegalAccessException {
-
+        @Throws(IllegalAccessException::class)
+        protected fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             if (position < 0) {
-                Log.d("YouQi", "Negative Position");
+                Log.d("YouQi", "Negative Position")
 
                 //int resIdTextView = android.R.layout.simple_spinner_item;
                 //int resIdTextView = R.layout.spinner_edittext_lookalike;
                 //final TextView v =  (TextView) ((LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(resIdTextView, parent, false);
-                final TextView v = (TextView) obj.getView(0, convertView, parent);
-                v.setTextColor(v.getCurrentHintTextColor()); //ContextCompat.getColor(getContext(), R.color.md_grey_300));
-                v.setTextSize(18);
-                v.setText(getPrompt());
+                val v = obj.getView(0, convertView, parent) as TextView
+                v.setTextColor(v.currentHintTextColor) //ContextCompat.getColor(getContext(), R.color.md_grey_300));
+                v.textSize = 18f
+                v.text = prompt
                 //v.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-                return v;
+                return v
             }
-            return obj.getView(position, convertView, parent);
+            return obj.getView(position, convertView, parent)
+        }
+
+        init {
+            try {
+                getView = SpinnerAdapter::class.java.getMethod(
+                    "getView", Int::class.javaPrimitiveType, View::class.java, ViewGroup::class.java
+                )
+            } catch (e: Exception) {
+                throw RuntimeException(e)
+            }
         }
     }
 }

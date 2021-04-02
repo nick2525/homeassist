@@ -1,48 +1,33 @@
-package com.axzae.homeassistant.view;
+package com.axzae.homeassistant.view
 
-import android.content.Context;
-import android.text.TextUtils;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.content.Context
+import android.util.AttributeSet
+import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.axzae.homeassistant.R
 
-import com.axzae.homeassistant.R;
+class ChangelogView @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : LinearLayout(context, attrs, defStyleAttr) {
 
-import java.util.List;
-
-public class ChangelogView extends LinearLayout {
-
-    public ChangelogView(Context context) {
-        super(context);
-        init(context);
+    init {
+        gravity = Gravity.CENTER_VERTICAL
+        orientation = VERTICAL
     }
 
-    public ChangelogView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init(context);
-    }
-
-    private void init(Context context) {
-        //Setup default parameters
-        setGravity(Gravity.CENTER_VERTICAL);
-        setOrientation(VERTICAL);
-    }
-
-    public void loadLogs(List<String> answers) {
-        Log.d("YouQi", "loadLogs called");
-
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-        removeAllViews();
-        for (String answer : answers) {
-            View row = (View) inflater.inflate(R.layout.item_changelog_row, this, false);
-            TextView rowView = (TextView) row.findViewById(R.id.text_log);
-            rowView.setText(answer);
-            addView(row);
+    fun loadLogs(answers: List<String?>) {
+        Log.d("YouQi", "loadLogs called")
+        val inflater = LayoutInflater.from(context)
+        removeAllViews()
+        for (answer in answers) {
+            val row = inflater.inflate(R.layout.item_changelog_row, this, false)
+            val rowView = row.findViewById<View>(R.id.text_log) as TextView
+            rowView.text = answer
+            addView(row)
         }
     }
-
 }
