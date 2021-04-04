@@ -23,14 +23,15 @@ import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import androidx.core.content.res.ResourcesCompat
 import com.axzae.homeassistant.R
 
 /**
  * Draws a bubble with a shadow, filled with any color.
  */
 class BubbleDrawable(res: Resources) : Drawable() {
-    private val mShadow: Drawable
-    private val mMask: Drawable
+    private val mShadow: Drawable = ResourcesCompat.getDrawable(res, R.drawable.amu_bubble_shadow, null)!!
+    private val mMask: Drawable = ResourcesCompat.getDrawable(res, R.drawable.amu_bubble_mask, null)!!
     private var mColor = Color.WHITE
     fun setColor(color: Int) {
         mColor = color
@@ -42,17 +43,11 @@ class BubbleDrawable(res: Resources) : Drawable() {
         mShadow.draw(canvas)
     }
 
-    override fun setAlpha(alpha: Int) {
-        throw UnsupportedOperationException()
-    }
+    override fun setAlpha(alpha: Int) = throw UnsupportedOperationException()
 
-    override fun setColorFilter(cf: ColorFilter?) {
-        throw UnsupportedOperationException()
-    }
+    override fun setColorFilter(cf: ColorFilter?) = throw UnsupportedOperationException()
 
-    override fun getOpacity(): Int {
-        return PixelFormat.TRANSLUCENT
-    }
+    override fun getOpacity() = PixelFormat.TRANSLUCENT
 
     override fun setBounds(left: Int, top: Int, right: Int, bottom: Int) {
         mMask.setBounds(left, top, right, bottom)
@@ -64,12 +59,6 @@ class BubbleDrawable(res: Resources) : Drawable() {
         mShadow.bounds = bounds
     }
 
-    override fun getPadding(padding: Rect): Boolean {
-        return mMask.getPadding(padding)
-    }
+    override fun getPadding(padding: Rect) = mMask.getPadding(padding)
 
-    init {
-        mMask = res.getDrawable(R.drawable.amu_bubble_mask)
-        mShadow = res.getDrawable(R.drawable.amu_bubble_shadow)
-    }
 }

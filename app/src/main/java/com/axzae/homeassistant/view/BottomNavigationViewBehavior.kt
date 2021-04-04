@@ -1,65 +1,70 @@
-package com.axzae.homeassistant.view;
+package com.axzae.homeassistant.view
 
-import android.content.Context;
-import android.content.res.Resources;
-import androidx.annotation.NonNull;
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.core.view.ViewCompat;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.view.View;
+import android.content.Context
+import android.content.res.Resources
+import android.util.AttributeSet
+import android.util.DisplayMetrics
+import android.view.View
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ViewCompat
+import com.google.android.material.appbar.AppBarLayout
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
-@SuppressWarnings("unused")
-public class BottomNavigationViewBehavior extends CoordinatorLayout.Behavior<BottomNavigationView> {
-    private boolean visible = true;
-    private boolean inStartPosition = true;
-    private float oldY;
-    private DisplayMetrics metrics;
-
-    public BottomNavigationViewBehavior(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        metrics = Resources.getSystem().getDisplayMetrics();
+class BottomNavigationViewBehavior(context: Context?, attrs: AttributeSet?) :
+    CoordinatorLayout.Behavior<BottomNavigationView>(context, attrs) {
+    private val visible = true
+    private val inStartPosition = true
+    private var oldY = 0f
+    private val metrics: DisplayMetrics = Resources.getSystem().displayMetrics
+    override fun layoutDependsOn(parent: CoordinatorLayout, fab: BottomNavigationView, dependency: View): Boolean {
+        return dependency is AppBarLayout
     }
 
-    @Override
-    public boolean layoutDependsOn(CoordinatorLayout parent, BottomNavigationView fab, View dependency) {
-        return dependency instanceof AppBarLayout;
-    }
-
-    @Override
-    public boolean onDependentViewChanged(CoordinatorLayout parent, BottomNavigationView child, View dependency) {
-        if (dependency instanceof AppBarLayout) {
-            CoordinatorLayout.LayoutParams lp = (CoordinatorLayout.LayoutParams) child.getLayoutParams();
-
-            float dy = oldY - dependency.getY();
-            moveDown(child, dy);
-            oldY = dependency.getY();
+    override fun onDependentViewChanged(
+        parent: CoordinatorLayout,
+        child: BottomNavigationView,
+        dependency: View
+    ): Boolean {
+        if (dependency is AppBarLayout) {
+            val lp = child.layoutParams as CoordinatorLayout.LayoutParams
+            val dy = oldY - dependency.getY()
+            moveDown(child, dy)
+            oldY = dependency.getY()
         }
-        return true;
+        return true
     }
 
-    private void moveDown(View child, float dy) {
-        float translationY = child.getTranslationY() + dy;
+    private fun moveDown(child: View, dy: Float) {
+        var translationY = child.translationY + dy
         if (translationY < 0) {
-            translationY = 0f;
+            translationY = 0f
         }
-
-        if (translationY > child.getHeight()) {
-            translationY = child.getHeight();
+        if (translationY > child.height) {
+            translationY = child.height.toFloat()
         }
-
-        child.setTranslationY(translationY);
+        child.translationY = translationY
     }
 
-    @Override
-    public boolean onStartNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull BottomNavigationView child, @NonNull View directTargetChild, @NonNull View target, int axes, int type) {
-        return axes == ViewCompat.SCROLL_AXIS_VERTICAL;
+    override fun onStartNestedScroll(
+        coordinatorLayout: CoordinatorLayout,
+        child: BottomNavigationView,
+        directTargetChild: View,
+        target: View,
+        axes: Int,
+        type: Int
+    ) = axes == ViewCompat.SCROLL_AXIS_VERTICAL
+
+    override fun onNestedScroll(
+        coordinatorLayout: CoordinatorLayout,
+        child: BottomNavigationView,
+        target: View,
+        dxConsumed: Int,
+        dyConsumed: Int,
+        dxUnconsumed: Int,
+        dyUnconsumed: Int,
+        type: Int
+    ) {
+        moveDown(child, dyConsumed.toFloat())
     }
 
-    @Override
-    public void onNestedScroll(@NonNull CoordinatorLayout coordinatorLayout, @NonNull BottomNavigationView child, @NonNull View target, int dxConsumed, int dyConsumed, int dxUnconsumed, int dyUnconsumed, int type) {
-        moveDown(child, dyConsumed);
-    }
 }
