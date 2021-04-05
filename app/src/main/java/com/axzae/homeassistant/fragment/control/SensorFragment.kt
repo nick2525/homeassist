@@ -1,16 +1,16 @@
 package com.axzae.homeassistant.fragment.control
 
-import android.annotation.TargetApi
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.graphics.Color
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.view.ViewGroup
+import androidx.core.view.isGone
+import androidx.core.view.isVisible
 import com.axzae.homeassistant.R
+import com.axzae.homeassistant.databinding.ControlSensorBinding
 import com.axzae.homeassistant.model.Entity
 import com.axzae.homeassistant.model.HomeAssistantServer
 import com.axzae.homeassistant.provider.ServiceProvider
@@ -21,7 +21,6 @@ import lecho.lib.hellocharts.model.AxisValue
 import lecho.lib.hellocharts.model.Line
 import lecho.lib.hellocharts.model.LineChartData
 import lecho.lib.hellocharts.model.PointValue
-import lecho.lib.hellocharts.view.LineChartView
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,14 +30,13 @@ import java.util.ArrayList
 import java.util.Date
 import java.util.Locale
 
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 class SensorFragment : BaseControlFragment(), View.OnClickListener {
     private var mCall: Call<ArrayList<ArrayList<Entity?>?>?>? = null
-    private var mProgressBar: View? = null
-    private var mChart: LineChartView? = null
-    private var mEmptyView: ViewGroup? = null
-    private var mConnErrorView: ViewGroup? = null
     private var mServer: HomeAssistantServer? = null
+
+    private var _binding: ControlSensorBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mServer = CommonUtil.inflate(arguments!!.getString("server"), HomeAssistantServer::class.java)
@@ -46,23 +44,17 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val builder = AlertDialog.Builder(activity)
-        val rootView = activity!!.layoutInflater.inflate(R.layout.control_sensor, null)
+        _binding = ControlSensorBinding.inflate(requireActivity().layoutInflater, null, false)
+        val rootView = binding.root
         builder.setView(rootView)
         builder.setTitle(mEntity.friendlyName)
-        mChart = rootView.findViewById(R.id.chart)
-        mEmptyView = rootView.findViewById(R.id.list_empty)
-        mConnErrorView = rootView.findViewById(R.id.list_conn_error)
-
-        //rootView.findViewById(R.id.button_cancel).setOnClickListener(this);
-        //rootView.findViewById(R.id.button_set).setOnClickListener(this);
-        mProgressBar = rootView.findViewById(R.id.progressbar)
         callService()
         return builder.create()
     }
 
     fun callService() {
         if (mCall == null) {
-            mProgressBar!!.visibility = View.VISIBLE
+            binding.progressbar.isVisible = true
             mCall = ServiceProvider.getApiService(mServer!!.baseUrl).getHistory(
                 mServer!!.getPassword(), mEntity.entityId
             )
@@ -72,30 +64,27 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
                     response: Response<ArrayList<ArrayList<Entity?>?>?>
                 ) {
                     mCall = null
-                    mProgressBar!!.visibility = View.GONE
+                    binding.progressbar.isGone = true
                     if (FaultUtil.isRetrofitServerError(response)) {
-
-                        //                        showError(response.message());
                         return
                     }
                     val restResponse = response.body()
-                    //CommonUtil.logLargeString("YouQi", "HISTORY restResponse: " + CommonUtil.deflate(restResponse));
                     if (restResponse != null && restResponse.size > 0) {
-                        val histories = restResponse[0]
-                        if (histories?.size?:0 <= 1) {
-                            mEmptyView!!.visibility = View.VISIBLE
+                        val histories = restResponse.first()
+                        if (histories?.size ?: 0 <= 1) {
+                            binding.listEmpty.isVisible = true
                         } else {
                             setupChart(histories.orEmpty().filterNotNull().toMutableList())
                         }
                     } else {
-                        mEmptyView!!.visibility = View.VISIBLE
+                        binding.listEmpty.isVisible = true
                     }
                 }
 
                 override fun onFailure(call: Call<ArrayList<ArrayList<Entity?>?>?>, t: Throwable) {
                     mCall = null
-                    mProgressBar!!.visibility = View.GONE
-                    mConnErrorView!!.visibility = View.VISIBLE
+                    binding.progressbar.isVisible = false
+                    binding.listConnError.isVisible = true
                     val activity: Activity? = activity
                     if (activity != null && !activity.isFinishing) {
                         Log.d("YouQi", FaultUtil.getPrintableMessage(getActivity(), t))
@@ -104,17 +93,9 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
                 }
             })
         }
-
-        //ContentValues values = new ContentValues();
-        //values.put(HabitTable.TIME); //whatever column you want to update, I dont know the name of it
-        //getContentResolver().update(HabitTable.CONTENT_URI,values,HabitTable.ID+"=?",new String[] {String.valueOf(id)}); //id is the id of the row you wan to update
-        //getContentResolver().update()
     }
 
-    private inner class DataItem internal constructor(var date: Date, var yValue: Float) {
-        var df = SimpleDateFormat("MMM-dd HH:mm", Locale.ENGLISH)
-        val label: String
-            get() = df.format(date)
+    private inner class DataItem(var date: Date, var yValue: Float) {
         val xValue: Long
             get() = date.time
     }
@@ -126,9 +107,9 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
         for (history in histories) {
             try {
                 if (history.lastUpdated.length == 25) {
-                    mData.add(DataItem(dfShort.parse(history.lastUpdated), history.state.toFloatOrNull()?:0.0f))
+                    mData.add(DataItem(dfShort.parse(history.lastUpdated), history.state.toFloatOrNull() ?: 0.0f))
                 } else {
-                    mData.add(DataItem(df.parse(history.lastUpdated), history.state.toFloatOrNull()?:0.0f))
+                    mData.add(DataItem(df.parse(history.lastUpdated), history.state.toFloatOrNull() ?: 0.0f))
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -140,22 +121,20 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
             val dataItem = mData[x]
             val yValue = dataItem.yValue
             yValues.add(PointValue(dataItem.xValue.toFloat(), yValue))
-
-            //            if (x == 0 || x == mData.size() - 1) {
-            //                AxisValue axisValue = new AxisValue(dataItem.getXValue());
-            //                axisValue.setLabel(dataItem.getLabel());
-            //                axisValues.add(axisValue);
-            //            }
         }
         val values: MutableList<PointValue> = ArrayList()
-        for (x in mData.indices) {
-            val dataItem = mData[x]
+        mData.indices.forEach {
+            val dataItem = mData[it]
             values.add(PointValue(dataItem.xValue.toFloat(), dataItem.yValue))
         }
 
         //In most cased you can call data model methods in builder-pattern-like manner.
         val line =
-            Line(values).setColor(Color.parseColor("#3366cc")).setCubic(false).setHasLabels(true).setHasPoints(false)
+            Line(values)
+                .setColor(Color.parseColor("#3366cc"))
+                .setCubic(false)
+                .setHasLabels(true)
+                .setHasPoints(false)
                 .setCubic(false)
         val lines: MutableList<Line> = ArrayList()
         lines.add(line)
@@ -184,8 +163,8 @@ class SensorFragment : BaseControlFragment(), View.OnClickListener {
             axisX = Axis().setName("Time (Last 24 Hours)")
         }
         data.axisXBottom = axisX
-        mChart!!.lineChartData = data
-        mChart!!.visibility = View.VISIBLE
+        binding.chart.lineChartData = data
+        binding.chart.isVisible = true
     }
 
     override fun onClick(view: View) {
