@@ -13,71 +13,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.axzae.homeassistant.view
 
-package com.axzae.homeassistant.view;
-
-import android.content.Context;
-import android.graphics.Canvas;
-import android.util.AttributeSet;
-import android.widget.FrameLayout;
+import android.content.Context
+import android.graphics.Canvas
+import android.util.AttributeSet
+import android.widget.FrameLayout
 
 /**
  * RotationLayout rotates the contents of the layout by multiples of 90 degrees.
- * <p/>
- * May not work with padding.
+ *
  */
-public class RotationLayout extends FrameLayout {
-    private int mRotation;
+class RotationLayout @JvmOverloads constructor(
+    context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
+) : FrameLayout(context, attrs, defStyleAttr) {
+    private var mRotation = 0
 
-    public RotationLayout(Context context) {
-        super(context);
-    }
-
-    public RotationLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public RotationLayout(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-    }
-
-    @Override
-    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (mRotation == 1 || mRotation == 3) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-            setMeasuredDimension(getMeasuredHeight(), getMeasuredWidth());
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+            setMeasuredDimension(measuredHeight, measuredWidth)
         } else {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec)
         }
     }
 
     /**
      * @param degrees the rotation, in degrees.
      */
-    public void setViewRotation(int degrees) {
-        mRotation = ((degrees + 360) % 360) / 90;
+    fun setViewRotation(degrees: Int) {
+        mRotation = (degrees + 360) % 360 / 90
     }
 
-
-    @Override
-    public void dispatchDraw(Canvas canvas) {
+    public override fun dispatchDraw(canvas: Canvas) {
         if (mRotation == 0) {
-            super.dispatchDraw(canvas);
-            return;
+            super.dispatchDraw(canvas)
+            return
         }
-
         if (mRotation == 1) {
-            canvas.translate(getWidth(), 0);
-            canvas.rotate(90, getWidth() / 2, 0);
-            canvas.translate(getHeight() / 2, getWidth() / 2);
+            canvas.translate(width.toFloat(), 0f)
+            canvas.rotate(90f, (width / 2).toFloat(), 0f)
+            canvas.translate((height / 2).toFloat(), (width / 2).toFloat())
         } else if (mRotation == 2) {
-            canvas.rotate(180, getWidth() / 2, getHeight() / 2);
+            canvas.rotate(180f, (width / 2).toFloat(), (height / 2).toFloat())
         } else {
-            canvas.translate(0, getHeight());
-            canvas.rotate(270, getWidth() / 2, 0);
-            canvas.translate(getHeight() / 2, -getWidth() / 2);
+            canvas.translate(0f, height.toFloat())
+            canvas.rotate(270f, (width / 2).toFloat(), 0f)
+            canvas.translate((height / 2).toFloat(), (-width / 2).toFloat())
         }
-
-        super.dispatchDraw(canvas);
+        super.dispatchDraw(canvas)
     }
 }

@@ -26,7 +26,7 @@ class BottomNavigationViewBehavior(context: Context?, attrs: AttributeSet?) :
         dependency: View
     ): Boolean {
         if (dependency is AppBarLayout) {
-            val lp = child.layoutParams as CoordinatorLayout.LayoutParams
+            child.layoutParams as CoordinatorLayout.LayoutParams
             val dy = oldY - dependency.getY()
             moveDown(child, dy)
             oldY = dependency.getY()

@@ -314,7 +314,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         startActivityForResult(i, 2000)
     }
 
-    private inner class SharedPreferenceLoadingTask internal constructor() : AsyncTask<Void?, Void?, ErrorMessage?>() {
+    private inner class SharedPreferenceLoadingTask() : AsyncTask<Void?, Void?, ErrorMessage?>() {
         override fun doInBackground(vararg param: Void?): ErrorMessage? {
             PreferenceManager.setDefaultValues(applicationContext, R.xml.preferences, false)
             mSharedPref = appController.sharedPref
@@ -372,8 +372,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
         val sw = StringWriter()
         val pw = PrintWriter(sw)
         throwable.printStackTrace(pw)
-        val sStackTrace = sw.toString() // stack trace as a string
-        //System.out.println(sStackTrace);
+        val sStackTrace = sw.toString()
         MaterialDialog.Builder(this)
             .title(R.string.title_send_crash_report)
             .content(R.string.message_crash_report)
@@ -382,7 +381,7 @@ class ConnectActivity : BaseActivity(), CoroutineScope {
             .negativeColorRes(R.color.md_blue_500)
             .stackingBehavior(StackingBehavior.ADAPTIVE)
             .positiveColorRes(R.color.md_red_500)
-            .onPositive { dialog, which ->
+            .onPositive { _, _ ->
                 val emailIntent = Intent(Intent.ACTION_SENDTO)
                 emailIntent.data = Uri.parse("mailto:")
                 emailIntent.putExtra(Intent.EXTRA_EMAIL, arrayOf("support@axzae.com"))

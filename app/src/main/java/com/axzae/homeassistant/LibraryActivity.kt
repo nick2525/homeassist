@@ -1,52 +1,43 @@
-package com.axzae.homeassistant;
+package com.axzae.homeassistant
 
-import android.os.Bundle;
-import androidx.fragment.app.Fragment;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.view.MenuItem;
+import android.os.Bundle
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
+import com.axzae.homeassistant.fragment.LibraryFragment
 
-import com.axzae.homeassistant.fragment.LibraryFragment;
-
-public class LibraryActivity extends AppCompatActivity {
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_about);
-
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.pref_oss_license);
+class LibraryActivity : AppCompatActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_about)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        if (supportActionBar != null) {
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setTitle(R.string.pref_oss_license)
         }
-
-        Fragment fragment = LibraryFragment.getInstance();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content, fragment)
-                .commit();
+        val fragment: Fragment = LibraryFragment.getInstance()
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.content, fragment)
+            .commit()
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        //int id = item.getItemId();
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
         }
-
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if (isFinishing()) {
-            overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+    override fun onPause() {
+        super.onPause()
+        if (isFinishing) {
+            overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate)
         }
     }
 }

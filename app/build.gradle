@@ -21,7 +21,7 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.axzae.homeassistant"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode 1
         versionName "0.0.1"
@@ -137,7 +137,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
     implementation "androidx.activity:activity-ktx:1.2.2"
 
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.squareup.retrofit2:retrofit-mock:2.1.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.1'

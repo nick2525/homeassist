@@ -1,83 +1,66 @@
-package com.axzae.homeassistant;
+package com.axzae.homeassistant
 
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import br.tiagohm.markdownview.MarkdownView
+import br.tiagohm.markdownview.css.styles.Github
+import com.axzae.homeassistant.util.CommonUtil
 
-import com.axzae.homeassistant.util.CommonUtil;
-
-import br.tiagohm.markdownview.MarkdownView;
-import br.tiagohm.markdownview.css.styles.Github;
-
-public class WikiActivity extends AppCompatActivity {
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_wiki, menu);
-
-        CommonUtil.setMenuDrawableColor(this, menu.findItem(R.id.action_open_in_browser), R.color.md_white_1000);
-
-        return super.onCreateOptionsMenu(menu);
+class WikiActivity : AppCompatActivity() {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        val inflater = menuInflater
+        inflater.inflate(R.menu.menu_wiki, menu)
+        CommonUtil.setMenuDrawableColor(this, menu.findItem(R.id.action_open_in_browser), R.color.md_white_1000)
+        return super.onCreateOptionsMenu(menu)
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_wiki);
-
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setTitle(R.string.menu_faq);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_wiki)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        if (supportActionBar != null) {
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setTitle(R.string.menu_faq)
         }
-
-        Github css = new Github();
-        css.addRule("body", "line-height: 1.6", "padding: 0px");
-
-        final MarkdownView mMarkdownView = findViewById(R.id.markdown_view);
-        mMarkdownView.addStyleSheet(css);
-        //mMarkdownView.loadMarkdown("**MarkdownView**");
-        //mMarkdownView.loadMarkdownFromAsset("markdown1.md");
-        //mMarkdownView.loadMarkdownFromFile(new File());
-        mMarkdownView.loadMarkdownFromUrl("https://raw.githubusercontent.com/axzae/homeassist-builder/master/wiki/MAIN.md");
-
+        val css = Github()
+        css.addRule("body", "line-height: 1.6", "padding: 0px")
+        val mMarkdownView = findViewById<MarkdownView>(R.id.markdown_view)
+        mMarkdownView.addStyleSheet(css)
+        mMarkdownView.loadMarkdownFromUrl("https://raw.githubusercontent.com/nick2525/homeassist/master/README.md")
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         //int id = item.getItemId();
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-            case R.id.action_open_in_browser:
-                openInBrowser();
-                return true;
+        when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressed()
+                return true
+            }
+            R.id.action_open_in_browser -> {
+                openInBrowser()
+                return true
+            }
         }
-
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected(item)
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        if (isFinishing()) {
-            overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate);
+    override fun onPause() {
+        super.onPause()
+        if (isFinishing) {
+            overridePendingTransition(R.anim.activity_open_scale, R.anim.activity_close_translate)
         }
     }
 
-    private void openInBrowser() {
-        String url = "https://github.com/axzae/homeassist-builder/blob/master/wiki/MAIN.md";
-        Intent i = new Intent(Intent.ACTION_VIEW);
-        i.setData(Uri.parse(url));
-        startActivity(i);
+    private fun openInBrowser() {
+        val url = "https://raw.githubusercontent.com/nick2525/homeassist/master/README.md"
+        val i = Intent(Intent.ACTION_VIEW)
+        i.data = Uri.parse(url)
+        startActivity(i)
     }
 }
