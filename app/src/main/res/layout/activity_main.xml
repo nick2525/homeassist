@@ -93,12 +93,10 @@
 
         <com.google.android.material.bottomnavigation.BottomNavigationView
             android:id="@+id/navigation"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            android:background="@color/md_white_1000"
-            app:itemIconTint="@color/color_bottom_navigation"
-            app:itemTextColor="@color/md_red_500"
             app:layout_behavior="com.axzae.homeassistant.view.BottomNavigationViewBehavior"
             app:menu="@menu/navigation"/>
 

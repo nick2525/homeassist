@@ -33,11 +33,11 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
+import androidx.browser.customtabs.CustomTabColorSchemeParams
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isVisible
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
@@ -71,7 +71,6 @@ import com.axzae.homeassistant.util.FaultUtil
 import com.axzae.homeassistant.view.ChangelogView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.navigation.NavigationView
 import com.google.android.material.tabs.TabLayout
 import com.jaeger.library.StatusBarUtil
 import com.miguelcatalan.materialsearchview.MaterialSearchView
@@ -256,19 +255,18 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     private fun setupDrawer() {
-        val mVersionText = findViewById<TextView>(R.id.version_text)
         val mHeaderView = binding.navView.getHeaderView(0)
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
             val summary = String.format(Locale.ENGLISH, "v%s", packageInfo.versionName)
-            mVersionText.text = summary
+            binding.versionText.text = summary
         } catch (e: Exception) {
-            mVersionText.text = ""
+            binding.versionText.text = ""
         }
         val mProfileImage = mHeaderView?.findViewById<View>(R.id.profile_image)
         CommonUtil.setBouncyTouch(mProfileImage)
         val websocketButton = mHeaderView?.findViewById<TextView>(R.id.text_websocket)
-        websocketButton?.setOnClickListener(View.OnClickListener { mService!!.startWebSocket(mCurrentServer) })
+        websocketButton?.setOnClickListener { mService!!.startWebSocket(mCurrentServer) }
 
         //TextView mainText = mHeaderView.findViewById(R.id.main_text);
         //TextView subText = mHeaderView.findViewById(R.id.sub_text);
@@ -277,9 +275,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         mServerSpinner = mHeaderView?.findViewById(R.id.spinner_server)
         //servers.add(new HomeAssistantServer(mCurrentServer.getBaseUrl(), mCurrentServer.getPassword()));
         mServerAdapter = ServerAdapter(this, 0, mServers!!)
-        mServerSpinner?.setAdapter(mServerAdapter)
+        mServerSpinner?.adapter = mServerAdapter
         mServerSpinner?.setSelection(mSharedPref!!.getInt("connectionIndex", 0), false) //must
-        mServerSpinner?.setOnItemSelectedListener(object : OnItemSelectedListener {
+        mServerSpinner?.onItemSelectedListener = object : OnItemSelectedListener {
             override fun onItemSelected(adapterView: AdapterView<*>?, view: View, pos: Int, id: Long) {
                 if (++spinnerCheck <= 1) return
                 Log.d("YouQi", "mServerSpinner selected: $pos")
@@ -297,17 +295,15 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {}
-        })
+        }
 
         //Hack in place to make blurdialogfragment statusbar height calculation works
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            val w = window // in Activity's onCreate() for instance
-            //w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
-            w.setFlags(
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
-                WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
-            )
-        }
+        val w = window // in Activity's onCreate() for instance
+        //w.setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        w.setFlags(
+            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS,
+            WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
+        )
 
         //StatusBar Scrim
         StatusBarUtil.setColorForDrawerLayout(
@@ -319,8 +315,8 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         val contentView = findViewById<ViewGroup>(android.R.id.content)
         val fakeTranslucentView = contentView.findViewById<View>(com.jaeger.library.R.id.statusbarutil_translucent_view)
         if (fakeTranslucentView != null) {
-            if (fakeTranslucentView.visibility == View.GONE) {
-                fakeTranslucentView.visibility = View.VISIBLE
+            if (fakeTranslucentView.isGone) {
+                fakeTranslucentView.isVisible = true
             }
             val colorString = "#" + Integer.toHexString(128) + Integer.toHexString(
                 ResourcesCompat.getColor(
@@ -339,35 +335,33 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         )
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        binding.navView.setNavigationItemSelectedListener(object : NavigationView.OnNavigationItemSelectedListener {
-            override fun onNavigationItemSelected(item: MenuItem): Boolean {
-                var isSelected = false
-                when (item.itemId) {
-                    R.id.nav_webui -> showWebUI()
-                    R.id.nav_logbook -> showLogbook()
-                    R.id.nav_map -> showMap()
-                    R.id.nav_help -> {
-                        showWiki()
-                        binding.drawerLayout.closeDrawers()
-                    }
-                    R.id.nav_settings -> {
-                        showSettings()
-                        binding.drawerLayout.closeDrawers()
-                    }
-                    R.id.nav_share -> shareApp()
-                    R.id.nav_bug_report -> {
-                        sendBugReport()
-                        binding.drawerLayout.closeDrawers()
-                    }
-                    R.id.nav_logout -> {
-                        showSwitch()
-                        binding.drawerLayout.closeDrawers()
-                    }
-                    else -> isSelected = true
+        binding.navView.setNavigationItemSelectedListener {
+            var isSelected = false
+            when (it.itemId) {
+                R.id.nav_webui -> showWebUI()
+                R.id.nav_logbook -> showLogbook()
+                R.id.nav_map -> showMap()
+                R.id.nav_help -> {
+                    showWiki()
+                    binding.drawerLayout.closeDrawers()
                 }
-                return isSelected
+                R.id.nav_settings -> {
+                    showSettings()
+                    binding.drawerLayout.closeDrawers()
+                }
+                R.id.nav_share -> shareApp()
+                R.id.nav_bug_report -> {
+                    sendBugReport()
+                    binding.drawerLayout.closeDrawers()
+                }
+                R.id.nav_logout -> {
+                    showSwitch()
+                    binding.drawerLayout.closeDrawers()
+                }
+                else -> isSelected = true
             }
-        })
+            isSelected
+        }
     }
 
     private fun switchConnection(homeAssistantServer: HomeAssistantServer) {
@@ -414,8 +408,8 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
             mViewPagerAdapter!!.addFragment(EntityFragment.getInstance(group), group.friendlyName)
         }
-        mViewPager?.setAdapter(mViewPagerAdapter)
-        mViewPager?.setOffscreenPageLimit(20)
+        mViewPager?.adapter = mViewPagerAdapter
+        mViewPager?.offscreenPageLimit = 20
         mTabLayout.setupWithViewPager(mViewPager)
         mTabLayout.setSelectedTabIndicatorHeight(CommonUtil.pxFromDp(this, 4f))
         for (i in mGroups!!.indices) {
@@ -436,7 +430,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             override fun onTabSelected(tab: TabLayout.Tab) {
                 super.onTabSelected(tab)
                 val actionBar = supportActionBar
-                actionBar?.setTitle(if (tab.position == 0) getString(R.string.app_name) else tab.text)
+                actionBar?.title = if (tab.position == 0) getString(R.string.app_name) else tab.text
                 showBottomNavigation()
                 //numTab = tab.getPosition();
                 //prefs.edit().putInt("numTab", numTab).apply();
@@ -457,9 +451,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         })
         binding.swipeRefreshLayout.setSwipeableChildren(mViewPager!!)
         binding.navigation.setOnNavigationItemSelectedListener(this)
-        binding.navigation.setSelectedItemId(-1)
+        binding.navigation.selectedItemId = -1
         binding.navigation.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        Log.d("YouQi", "navigation: " + binding.navigation.getMeasuredHeight())
+        Log.d("YouQi", "navigation: " + binding.navigation.measuredHeight)
         //CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
         //params.setMargins(0, 0, 0, mNavigation.getMeasuredHeight());  // left, top, right, bottom
 
@@ -491,10 +485,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         super.onStart()
         val intent = Intent(this, DataSyncService::class.java)
         applicationContext.bindService(intent, mConnection, BIND_AUTO_CREATE)
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 
     override fun onDestroy() {
@@ -595,13 +585,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             .content(R.string.message_attach_bootstrap)
             .positiveText(getString(R.string.action_yes))
             .negativeText(getString(R.string.action_no))
-            .negativeColorRes(R.color.md_blue_500)
-            .positiveColorRes(R.color.md_blue_500)
-            .onNegative(object : SingleButtonCallback {
-                override fun onClick(dialog: MaterialDialog, which: DialogAction) {
-                    sendBugReport(null)
-                }
-            })
+            .onNegative { _, _ -> sendBugReport(null) }
             .onPositive(object : SingleButtonCallback {
                 override fun onClick(dialog: MaterialDialog, which: DialogAction) {
                     if (mCall2 == null) {
@@ -655,8 +639,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             .content(getString(R.string.message_signout, mCurrentServer!!.baseUrl))
             .positiveText(getString(R.string.action_logout))
             .negativeText(getString(R.string.action_cancel))
-            .negativeColorRes(R.color.md_blue_500)
-            .positiveColorRes(R.color.md_blue_500)
             .onPositive { _, _ -> logOut() }
             .show()
     }
@@ -666,8 +648,12 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         //builder.setStartAnimations(mActivity, R.anim.right_in, R.anim.left_out);
         builder.setStartAnimations(this, R.anim.activity_open_translate, R.anim.activity_close_scale)
         builder.setExitAnimations(this, R.anim.activity_open_scale, R.anim.activity_close_translate)
-        builder.setToolbarColor(ResourcesCompat.getColor(resources, R.color.md_blue_500, null))
-        //        builder.setSecondaryToolbarColor(ResourcesCompat.getColor(getResources(), R.color.md_white_1000, null));
+
+        val params = CustomTabColorSchemeParams.Builder()
+            .setToolbarColor(ResourcesCompat.getColor(resources, R.color.md_blue_500, null))
+            .build()
+
+        builder.setDefaultColorSchemeParams(params)
         val customTabsIntent = builder.build()
         try {
             customTabsIntent.launchUrl(this, mCurrentServer!!.baseUri)
@@ -817,7 +803,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     override fun onPointerCaptureChanged(hasCapture: Boolean) {}
 
     private fun makeRefreshWork() {
-        this.launch {
+        launch {
             showNetworkBusy()
             binding.navigation.menu.findItem(R.id.action_refresh).isEnabled = false
             val errorMessage:ErrorMessage? = refreshWork()
@@ -825,7 +811,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             binding.navigation.menu.findItem(R.id.action_refresh).isEnabled = true
             binding.swipeRefreshLayout.isRefreshing = false
             if (errorMessage != null) {
-                showError(errorMessage?.message)
+                showError(errorMessage.message)
             }
         }
     }
@@ -853,22 +839,20 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         result
     }
 
-    fun showSortOptions() {
+    private fun showSortOptions() {
         val popup = PopupMenu(this, (binding.navigation.getChildAt(0) as BottomNavigationMenuView).getChildAt(2))
         //Inflating the Popup using xml file
         popup.menuInflater.inflate(R.menu.menu_sort, popup.menu)
 
         //registering popup with OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(object : PopupMenu.OnMenuItemClickListener {
-            override fun onMenuItemClick(item: MenuItem): Boolean {
-                val currentFragment = currentEntityFragment
-                val group = currentFragment.group
-                if (group != null) {
-                    currentFragment.sortEntity(item.order)
-                }
-                return true
+        popup.setOnMenuItemClickListener { item ->
+            val currentFragment = currentEntityFragment
+            val group = currentFragment.group
+            if (group != null) {
+                currentFragment.sortEntity(item.order)
             }
-        })
+            true
+        }
         popup.show()
     }
 
@@ -908,12 +892,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         }
 
         override fun getDropDownView(position: Int, convertView: View, parent: ViewGroup): View {
-            var convertView = convertView
-            if (convertView == null) {
-                val vi = context.getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater
-                //convertView = vi.inflate(android.R.layout.simple_spinner_dropdown_item, parent, false);
-                convertView = vi.inflate(R.layout.item_server_dropdown, parent, false)
-            }
             val mainText = convertView.findViewById<TextView>(R.id.main_text)
             val subText = convertView.findViewById<TextView>(R.id.sub_text)
             if (position == items.size) {
@@ -924,15 +902,12 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 )
                 subText.visibility = View.GONE
                 convertView.findViewById<View>(R.id.parent).isClickable = true
-                convertView.findViewById<View>(R.id.parent).setOnClickListener(object : View.OnClickListener {
-                    override fun onClick(view: View) {
-                        //Toast.makeText(MainActivity.this, "Hello", Toast.LENGTH_SHORT).show();
-                        addConnection()
-                        val root = parent.rootView
-                        root.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
-                        root.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
-                    }
-                })
+                convertView.findViewById<View>(R.id.parent).setOnClickListener {
+                    addConnection()
+                    val root = parent.rootView
+                    root.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_BACK))
+                    root.dispatchKeyEvent(KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_BACK))
+                }
             } else {
                 mainText.text = items.get(position).getName()
                 subText.isVisible = true
@@ -982,9 +957,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     inner class EntityChangeObserver internal constructor(handler: Handler?) : ContentObserver(handler) {
-        override fun deliverSelfNotifications(): Boolean {
-            return super.deliverSelfNotifications()
-        }
 
         override fun onChange(selfChange: Boolean) {
             this.onChange(selfChange, null)

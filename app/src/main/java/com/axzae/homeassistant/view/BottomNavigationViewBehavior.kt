@@ -1,9 +1,7 @@
 package com.axzae.homeassistant.view
 
 import android.content.Context
-import android.content.res.Resources
 import android.util.AttributeSet
-import android.util.DisplayMetrics
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
@@ -12,13 +10,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class BottomNavigationViewBehavior(context: Context?, attrs: AttributeSet?) :
     CoordinatorLayout.Behavior<BottomNavigationView>(context, attrs) {
-    private val visible = true
-    private val inStartPosition = true
     private var oldY = 0f
-    private val metrics: DisplayMetrics = Resources.getSystem().displayMetrics
-    override fun layoutDependsOn(parent: CoordinatorLayout, fab: BottomNavigationView, dependency: View): Boolean {
-        return dependency is AppBarLayout
-    }
+    override fun layoutDependsOn(parent: CoordinatorLayout, fab: BottomNavigationView, dependency: View) =
+        dependency is AppBarLayout
 
     override fun onDependentViewChanged(
         parent: CoordinatorLayout,
