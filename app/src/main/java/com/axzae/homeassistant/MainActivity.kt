@@ -10,7 +10,6 @@ import android.content.SharedPreferences
 import android.database.ContentObserver
 import android.graphics.Color
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -29,7 +28,6 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.ArrayAdapter
 import android.widget.PopupMenu
-import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
 import android.widget.Toast
@@ -37,6 +35,7 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.widget.Toolbar
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -47,6 +46,7 @@ import androidx.viewpager.widget.ViewPager
 import com.afollestad.materialdialogs.DialogAction
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.MaterialDialog.SingleButtonCallback
+import com.axzae.homeassistant.databinding.ActivityMainBinding
 import com.axzae.homeassistant.fragment.ConnectionFragment
 import com.axzae.homeassistant.fragment.EntityFragment
 import com.axzae.homeassistant.model.Changelog
@@ -69,8 +69,6 @@ import com.axzae.homeassistant.util.BottomNavigationViewHelper
 import com.axzae.homeassistant.util.CommonUtil
 import com.axzae.homeassistant.util.FaultUtil
 import com.axzae.homeassistant.view.ChangelogView
-import com.axzae.homeassistant.view.MultiSwipeRefreshLayout
-import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
@@ -86,13 +84,9 @@ import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.newSingleThreadContext
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
@@ -100,8 +94,6 @@ import retrofit2.Response
 import java.util.ArrayList
 import java.util.Locale
 import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelectedListener, EntityProcessInterface,
     EventEmitterInterface, CoroutineScope {
@@ -111,7 +103,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private var spinnerCheck = 0
     private var mServers: ArrayList<HomeAssistantServer>? = null
     private var mServerAdapter: ServerAdapter? = null
-    private var mAppBarLayout: AppBarLayout? = null
     override fun getEventSubject(): Subject<RxPayload> {
         return mEventEmitter
     }
@@ -120,16 +111,10 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private var mEntityChangeObserver: EntityChangeObserver? = null
     private var mSharedPref: SharedPreferences? = null
     private var mCurrentServer: HomeAssistantServer? = null
-    private var mProgressBar: ProgressBar? = null
     private var mCall: Call<ArrayList<Entity?>?>? = null
     private var doubleBackToExitPressedOnce = false
-    private var mSwipeRefresh: MultiSwipeRefreshLayout? = null
-    private var mDrawerLayout: DrawerLayout? = null
-    private var mNavigationView: NavigationView? = null
     private var mToast: Toast? = null
     private var runonce = false
-    private var mNavigation: BottomNavigationView? = null
-    private var mSearchView: MaterialSearchView? = null
     private var mMenuHoursand: MenuItem? = null
     private var mViewPagerAdapter: ViewPagerAdapter? = null
     private var mViewPager: ViewPager? = null
@@ -140,6 +125,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     //Bound Service (Experimental)
     private var mService: DataSyncService? = null
     private var mBound = false
+    private lateinit var binding: ActivityMainBinding
     private val mConnection: ServiceConnection = object : ServiceConnection {
         override fun onServiceConnected(className: ComponentName, service: IBinder) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
@@ -173,11 +159,11 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         get() = Dispatchers.Main + SupervisorJob()
 
     private fun showNetworkBusy() {
-        mProgressBar!!.visibility = View.VISIBLE
+        binding.progressBar.isVisible = true
     }
 
     private fun showNetworkIdle() {
-        mProgressBar!!.visibility = View.GONE
+        binding.progressBar.isGone = true
     }
 
     private fun showDatabaseBusy() {
@@ -204,13 +190,14 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
         setupContentObserver()
         mSharedPref = appController.sharedPref
         mServers = getInstance(this)!!.connections
         //mCurrentServer = HomeAssistantServer.newInstance(mSharedPref);
         mCurrentServer = mServers!![mSharedPref!!.getInt("connectionIndex", 0)]
-        mProgressBar = findViewById(R.id.progressBar)
         Log.d("YouQi", "onCreate")
         setupToolbar()
         setupDrawer()
@@ -218,7 +205,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         setupBottomNavigation()
         setupSearchView()
         setupWhatsNew()
-        mProgressBar?.setVisibility(View.GONE)
+        binding.progressBar.isGone = true
     }
 
     //https://stackoverflow.com/questions/21380914/contentobserver-onchange
@@ -233,8 +220,8 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     private fun setupSearchView() {
-        mSearchView = findViewById(R.id.search_view)
-        mSearchView?.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
+
+        binding.searchView.setOnQueryTextListener(object : MaterialSearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String): Boolean {
                 currentEntityFragment.search(query)
                 return false
@@ -246,7 +233,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 return false
             }
         })
-        mSearchView?.setOnSearchViewListener(object : SearchViewListener {
+        binding.searchView.setOnSearchViewListener(object : SearchViewListener {
             override fun onSearchViewShown() {
                 //Do some magic
                 Log.d("YouQi", "onSearchViewShown")
@@ -260,9 +247,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     private fun setupToolbar() {
-        val toolbar = findViewById<Toolbar>(R.id.toolbar)
-        mAppBarLayout = findViewById(R.id.appbar)
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         if (supportActionBar != null) {
             supportActionBar!!.setDisplayHomeAsUpEnabled(false)
             supportActionBar!!.title = getString(R.string.app_name)
@@ -271,10 +256,8 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     private fun setupDrawer() {
-        mDrawerLayout = findViewById(R.id.drawer_layout)
-        mNavigationView = findViewById(R.id.nav_view)
         val mVersionText = findViewById<TextView>(R.id.version_text)
-        val mHeaderView = mNavigationView?.getHeaderView(0)
+        val mHeaderView = binding.navView.getHeaderView(0)
         try {
             val packageInfo = packageManager.getPackageInfo(packageName, 0)
             val summary = String.format(Locale.ENGLISH, "v%s", packageInfo.versionName)
@@ -310,7 +293,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 //setTitle(CommonUtil.getPrintableMSISDN(mSubscriber.msisdn));
                 //getSupportActionBar().setSubtitle(mSubscriber.primaryOfferName);
                 //getSupportActionBar().setSubtitle(CommonUtil.getPrintableMSISDN(mSubscriber.msisdn));
-                mDrawerLayout?.closeDrawers()
+                binding.drawerLayout.closeDrawers()
             }
 
             override fun onNothingSelected(adapterView: AdapterView<*>?) {}
@@ -329,7 +312,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         //StatusBar Scrim
         StatusBarUtil.setColorForDrawerLayout(
             this,
-            mDrawerLayout,
+            binding.drawerLayout,
             ResourcesCompat.getColor(resources, R.color.md_red_500, null),
             128
         )
@@ -349,14 +332,14 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         }
         val toggle = ActionBarDrawerToggle(
             this,
-            mDrawerLayout,
+            binding.drawerLayout,
             findViewById<View>(R.id.toolbar) as Toolbar,
             R.string.navigation_drawer_open,
             R.string.navigation_drawer_close
         )
-        mDrawerLayout?.addDrawerListener(toggle)
+        binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
-        mNavigationView?.setNavigationItemSelectedListener(object : NavigationView.OnNavigationItemSelectedListener {
+        binding.navView.setNavigationItemSelectedListener(object : NavigationView.OnNavigationItemSelectedListener {
             override fun onNavigationItemSelected(item: MenuItem): Boolean {
                 var isSelected = false
                 when (item.itemId) {
@@ -365,20 +348,20 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                     R.id.nav_map -> showMap()
                     R.id.nav_help -> {
                         showWiki()
-                        mDrawerLayout?.closeDrawers()
+                        binding.drawerLayout.closeDrawers()
                     }
                     R.id.nav_settings -> {
                         showSettings()
-                        mDrawerLayout?.closeDrawers()
+                        binding.drawerLayout.closeDrawers()
                     }
                     R.id.nav_share -> shareApp()
                     R.id.nav_bug_report -> {
                         sendBugReport()
-                        mDrawerLayout?.closeDrawers()
+                        binding.drawerLayout.closeDrawers()
                     }
                     R.id.nav_logout -> {
                         showSwitch()
-                        mDrawerLayout?.closeDrawers()
+                        binding.drawerLayout.closeDrawers()
                     }
                     else -> isSelected = true
                 }
@@ -462,23 +445,21 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     fun showBottomNavigation() {
-        mNavigation!!.clearAnimation()
-        mNavigation!!.animate().translationY(0f).duration = 200
+        binding.navigation.clearAnimation()
+        binding.navView.animate().translationY(0f).duration = 200
     }
 
     private fun setupBottomNavigation() {
-        mSwipeRefresh = findViewById(R.id.swipe_refresh_layout)
-        mSwipeRefresh?.setOnRefreshListener(object : OnRefreshListener {
+        binding.swipeRefreshLayout.setOnRefreshListener(object : OnRefreshListener {
             override fun onRefresh() {
                 refreshApi()
             }
         })
-        mSwipeRefresh?.setSwipeableChildren(mViewPager)
-        mNavigation = findViewById(R.id.navigation)
-        mNavigation?.setOnNavigationItemSelectedListener(this)
-        mNavigation?.setSelectedItemId(-1)
-        mNavigation?.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
-        Log.d("YouQi", "navigation: " + mNavigation?.getMeasuredHeight())
+        binding.swipeRefreshLayout.setSwipeableChildren(mViewPager!!)
+        binding.navigation.setOnNavigationItemSelectedListener(this)
+        binding.navigation.setSelectedItemId(-1)
+        binding.navigation.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
+        Log.d("YouQi", "navigation: " + binding.navigation.getMeasuredHeight())
         //CoordinatorLayout.LayoutParams params = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
         //params.setMargins(0, 0, 0, mNavigation.getMeasuredHeight());  // left, top, right, bottom
 
@@ -486,7 +467,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
         //Log.d("YouQi", "Margin: " + params2.leftMargin + ", " + params2.topMargin + ", " + params2.rightMargin + ", " + mNavigation.getMeasuredHeight());
         //params2.setMargins(params2.leftMargin, params2.topMargin, params2.rightMargin, mNavigation.getMeasuredHeight());
         //mSwipeRefresh.setLayoutParams(params2);
-        BottomNavigationViewHelper.disableShiftMode(mNavigation)
+        BottomNavigationViewHelper.disableShiftMode(binding.navigation)
         //Log.d("YouQi", "FULL URI: " + mSharedPref.getString(ConnectActivity.EXTRA_FULL_URI, null));
 
         //CoordinatorLayout.LayoutParams layoutParams = (CoordinatorLayout.LayoutParams) mNavigation.getLayoutParams();
@@ -676,11 +657,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             .negativeText(getString(R.string.action_cancel))
             .negativeColorRes(R.color.md_blue_500)
             .positiveColorRes(R.color.md_blue_500)
-            .onPositive(object : SingleButtonCallback {
-                override fun onClick(dialog: MaterialDialog, which: DialogAction) {
-                    logOut()
-                }
-            })
+            .onPositive { _, _ -> logOut() }
             .show()
     }
 
@@ -715,10 +692,10 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     override fun onBackPressed() {
         //super.onBackPressed();
-        if (mDrawerLayout!!.isDrawerOpen((mNavigationView)!!)) {
-            mDrawerLayout!!.closeDrawers()
-        } else if (mSearchView!!.isSearchOpen) {
-            mSearchView!!.closeSearch()
+        if (binding.drawerLayout.isDrawerOpen((binding.navView))) {
+            binding.drawerLayout.closeDrawers()
+        } else if (binding.searchView.isSearchOpen) {
+            binding.searchView.closeSearch()
         } else if (currentEntityFragment.isFilterState) {
             currentEntityFragment.clearSearch()
         } else {
@@ -812,7 +789,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         showBottomNavigation()
-        mAppBarLayout!!.setExpanded(true)
+        binding.appbar.setExpanded(true)
         when (item.itemId) {
             R.id.action_search -> showSearch()
             R.id.action_refresh -> {
@@ -826,7 +803,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     private fun showSearch() {
-        mSearchView!!.showSearch(false)
+        binding.searchView.showSearch(false)
     }
 
     override fun getServer(): HomeAssistantServer {
@@ -842,11 +819,11 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private fun makeRefreshWork() {
         this.launch {
             showNetworkBusy()
-            mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = false
+            binding.navigation.menu.findItem(R.id.action_refresh).isEnabled = false
             val errorMessage:ErrorMessage? = refreshWork()
             showNetworkIdle()
-            mNavigation!!.menu.findItem(R.id.action_refresh).isEnabled = true
-            mSwipeRefresh!!.isRefreshing = false
+            binding.navigation.menu.findItem(R.id.action_refresh).isEnabled = true
+            binding.swipeRefreshLayout.isRefreshing = false
             if (errorMessage != null) {
                 showError(errorMessage?.message)
             }
@@ -877,7 +854,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     fun showSortOptions() {
-        val popup = PopupMenu(this, (mNavigation!!.getChildAt(0) as BottomNavigationMenuView).getChildAt(2))
+        val popup = PopupMenu(this, (binding.navigation.getChildAt(0) as BottomNavigationMenuView).getChildAt(2))
         //Inflating the Popup using xml file
         popup.menuInflater.inflate(R.menu.menu_sort, popup.menu)
 
@@ -1035,6 +1012,5 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
         }
     }
-
 
 }
