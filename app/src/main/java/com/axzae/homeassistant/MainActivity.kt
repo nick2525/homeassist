@@ -116,7 +116,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     private var runonce = false
     private var mMenuHoursand: MenuItem? = null
     private var mViewPagerAdapter: ViewPagerAdapter? = null
-    private var mViewPager: ViewPager? = null
 
     //Data
     private var mGroups: ArrayList<Group>? = null
@@ -305,13 +304,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS
         )
 
-        //StatusBar Scrim
-        StatusBarUtil.setColorForDrawerLayout(
-            this,
-            binding.drawerLayout,
-            ResourcesCompat.getColor(resources, R.color.md_red_500, null),
-            128
-        )
         val contentView = findViewById<ViewGroup>(android.R.id.content)
         val fakeTranslucentView = contentView.findViewById<View>(com.jaeger.library.R.id.statusbarutil_translucent_view)
         if (fakeTranslucentView != null) {
@@ -399,7 +391,6 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
 
     private fun setupViewPager() {
         val mTabLayout = findViewById<TabLayout>(R.id.tabs)
-        mViewPager = findViewById(R.id.viewpager)
         mViewPagerAdapter = ViewPagerAdapter(supportFragmentManager)
         mGroups = getInstance(this)!!.groups
         for (group: Group in mGroups!!) {
@@ -408,9 +399,9 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
             }
             mViewPagerAdapter!!.addFragment(EntityFragment.getInstance(group), group.friendlyName)
         }
-        mViewPager?.adapter = mViewPagerAdapter
-        mViewPager?.offscreenPageLimit = 20
-        mTabLayout.setupWithViewPager(mViewPager)
+        binding.viewpager.adapter = mViewPagerAdapter
+        binding.viewpager.offscreenPageLimit = 20
+        mTabLayout.setupWithViewPager(binding.viewpager)
         mTabLayout.setSelectedTabIndicatorHeight(CommonUtil.pxFromDp(this, 4f))
         for (i in mGroups!!.indices) {
             val group = mGroups!![i]
@@ -426,7 +417,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 }
             }
         }
-        mTabLayout.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(mViewPager) {
+        mTabLayout.addOnTabSelectedListener(object : TabLayout.ViewPagerOnTabSelectedListener(binding.viewpager) {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 super.onTabSelected(tab)
                 val actionBar = supportActionBar
@@ -449,7 +440,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
                 refreshApi()
             }
         })
-        binding.swipeRefreshLayout.setSwipeableChildren(mViewPager!!)
+        binding.swipeRefreshLayout.setSwipeableChildren(binding.viewpager)
         binding.navigation.setOnNavigationItemSelectedListener(this)
         binding.navigation.selectedItemId = -1
         binding.navigation.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
@@ -857,7 +848,7 @@ class MainActivity : BaseActivity(), BottomNavigationView.OnNavigationItemSelect
     }
 
     val currentEntityFragment: EntityFragment
-        get() = mViewPagerAdapter!!.getItem(mViewPager!!.currentItem) as EntityFragment
+        get() = mViewPagerAdapter!!.getItem(binding.viewpager.currentItem) as EntityFragment
 
     override fun showToast(message: String) {
         if (mToast != null) {
