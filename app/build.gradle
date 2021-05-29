@@ -1,36 +1,19 @@
-buildscript {
-    repositories {
-        maven { url 'https://maven.google.com' }
-        jcenter()
-    }
-
-}
-
-
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.google.gms.google-services'
-
-
-repositories {
-    maven { url "https://jitpack.io" }
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'com.google.gms.google-services'
 }
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.3"
     defaultConfig {
         applicationId "com.axzae.homeassistant"
-        minSdkVersion 22
+        minSdkVersion 25
         targetSdkVersion 30
         versionCode 1
         versionName "0.0.1"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
-        vectorDrawables.useSupportLibrary = true
-
-        multiDexEnabled true
-        renderscriptTargetApi 22
-        renderscriptSupportModeEnabled true
 
         buildConfigField('String', 'signatureHash', '"97:55:C7:8F:FB:36:FF:45:2A:21:87:01:47:B0:DD:AB:16:4F:C4:0D"')
     }
@@ -75,7 +58,7 @@ dependencies {
 
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.appcompat:appcompat:1.3.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'androidx.browser:browser:1.3.0'
     implementation 'com.google.android.material:material:1.3.0'
@@ -84,7 +67,7 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
 
     implementation 'com.google.android.gms:play-services-location:18.0.0'
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
     //compile 'com.google.firebase:firebase-core:11.6.0'
     implementation 'com.google.firebase:firebase-config:20.0.4'
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
@@ -112,7 +95,7 @@ dependencies {
 
     implementation 'com.jaeger.statusbarutil:library:1.4.0'
 
-    implementation 'nl.dionsegijn:konfetti:1.1.0'
+    implementation 'nl.dionsegijn:konfetti:1.3.2'
     implementation 'com.github.QuadFlask:colorpicker:0.0.13'
     implementation 'fr.tvbarthel.blurdialogfragment:lib:2.2.0'
     implementation 'com.wdullaer:materialdatetimepicker:4.2.3'
@@ -135,11 +118,10 @@ dependencies {
     }
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.3'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.3'
-    implementation "androidx.activity:activity-ktx:1.2.2"
+    implementation "androidx.activity:activity-ktx:1.2.3"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'com.squareup.retrofit2:retrofit-mock:2.1.0'
     androidTestImplementation 'com.squareup.okhttp3:mockwebserver:4.9.1'
-    debugImplementation 'com.amitshekhar.android:debug-db:1.0.1'
 
 }
